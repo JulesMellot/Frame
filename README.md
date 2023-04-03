@@ -32,7 +32,26 @@ To test run :
 ```ssh
 python3 main.py
 ```
+### For automation.
+Put the frame.service file in this folder:
+/etc/systemd/system/
 
+Then run 
+
+``` ssh
+sudo systemctl daemon-reload
+sudo systemctl enable frame.service
+sudo systemctl start frame.service
+```
+
+For the automatic update at 9 AM.
+``` ssh
+crontab -e
+```
+and add 
+```
+0 9 * * * python3 /home/pi/Frame/send.py
+```
 ## Disclaimer
 I'm a beginner in all areas of this project, so the files may not be perfectly written, and the website design may not be amazing. But the goal of sharing this project is to make it cooler and better over time!
 
