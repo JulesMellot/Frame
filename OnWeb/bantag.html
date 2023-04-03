@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Gérer les tag interdit</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.1.1/tailwind.min.css">
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <nav class="bg-gray-800 py-4">
+      <a href="index.html"><h1 class="text-2xl text-white text-center font-bold">Return Home</h1></a>
+    </nav>
+    <div class="container mx-auto my-8"><br><br>
+      <h1>Table of prohibited tags</h1>
+      <div class="bg-gray-200 mt-auto">
+        <form class="mt-8" id="formaction">
+            <label for="newWord" class="block font-bold mb-2">Add a new word:</label>
+            <input type="text" id="newWord" name="newWord" class="border border-gray-600 px-4 py-4 w-5/6 mb-5">
+            <input type="button" id="button" value="Add" onclick="addWord()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+          </form>
+    </div>
+            <table id="myTable" class="w-full">
+              <thead>
+                <tr>
+                  <th class="px-4 py-2">Word</th>
+                  <th class="px-4 py-2">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+              </tbody>
+            </table>
+    </div>
+    <script>
+      let data;
+
+      function deleteWord(button) {
+        const row = button.parentNode.parentNode;
+        const word = row.cells[0].innerHTML;
+        const index = data.ban.findIndex(item => item.name === word);
+        data.ban.splice(index, 1);
+        row.parentNode.removeChild(row);
+
+        // Send changed data to server to update JSON file
+        fetch('update_bantag.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+          .then(response => console.log('Server Response:', response))
+          .catch(error => console.error('Error:', error));
+      }
+
+      function addWord() {
+        const newWord = document.getElementById('newWord').value;
+        if (newWord.trim() === '') {
+          alert('Please enter a word to add.');
+          return;
+        }
+
+        if (data.ban.find(item => item.name === newWord)) {
+          alert('This word is already in the list.');
+          return;
+        }
+
+        data.ban.push({ name: newWord });
+
+        const table = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+        const row = table.insertRow();
+        const wordCell = row.insertCell(0);
+        const deleteCell = row.insertCell(1);
+
+        wordCell.innerHTML = newWord;
+        deleteCell.innerHTML = '<button onclick="deleteWord(this)">DELETE</button>';
+
+        // Send changed data to server to update JSON file
+        fetch('update_bantag.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        })
+          .then(response => console.log('Server Response:', response))
+          .catch(error => console.error('Error:', error));
+      }
+
+      // Upload JSON file
+      fetch('bantag.json')
+        .then(response => response.json())
+        .then(jsonData => {
+          data = jsonData;
+
+          // Add each element of the JSON to the array
+          data.ban.forEach(item => {
+            const table = document.getElementById('myTable').getElementsByTagName('tbody')[0];
+            const row = table.insertRow();
+            const wordCell = row.insertCell(0);
+            const deleteCell = row.insertCell(1);
+
+            wordCell.innerHTML = item.name;
+            deleteCell.innerHTML = '<button onclick="deleteWord(this)">DELETE</button>';
+          });
+        })
+        .catch(error => console.error('Error:', error));
+
+        var formElement = document.getElementById("formaction");
+
+          formElement.addEventListener("submit", function(event) {
+           addWord(); // Prevent the page from refreshing
+
+          });
+
+    </script>
+  </body>
+</html>

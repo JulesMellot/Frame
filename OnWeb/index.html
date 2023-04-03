@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>The Frame</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="tags.html">Tag Authorized</a></li>
+        <li><a href="bantag.html">Forbidden Tag</a></li>
+      </ul>
+      <button class="toggle-mode-btn" onclick="toggleMode()">Dark Mode</button>
+    </nav>
+    <main>
+      <h1>Frame Admin 🖼️</h1>
+      <form enctype="multipart/form-data" id="img-form" method="POST">
+      <div class="image-upload-container">
+        <label for="image-upload">Upload image</label>
+        <input class="button" type="file" name="image" accept="image/*">
+        <input class="button" type="submit" value="Update Image"></input>
+      </div>
+      </form>
+      <div class="update-container">
+      <form id="json-form">
+        <label for="function-select">Select the function to perform :</label>
+        <select name="function" id="function-select">
+          <option value="DeviantArt">Deviant Art</option>
+          <option value="plex">Plex</option>
+          <option value="fixed">Fixed</option>
+        </select>
+        <button class="button">Update function</button>
+      </form>
+      <button class="button" id="new">Update The Frame</button>
+      </div>
+    </main>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="app.js"></script>
+    <script src="function.js"></script>
+    <script>
+      const imgform = document.getElementById('img-form');
+      imgform.addEventListener('submit', (event) => {
+          event.preventDefault();
+          const fileInput = document.querySelector('input[type="file"]');
+          const file = fileInput.files[0];
+          const formData = new FormData();
+          formData.append('image', file);
+          const xhr = new XMLHttpRequest();
+          xhr.open('POST', 'upload.php');
+          xhr.onload = () => {
+              if (xhr.status === 200) {
+                Toastify({
+                text: xhr.responseText,
+                duration: 3000, 
+                gravity: "top", 
+                close: "true",
+                position: "right"
+              }).showToast();       
+              } else {
+                  console.error(xhr.statusText);
+                  Toastify({
+                    text: xhr.statusText,
+                    duration: 3000, 
+                    gravity: "top", 
+                    close: "true",
+                    position: "right"
+                  }).showToast();   
+              }
+          };
+          xhr.send(formData);
+      });
+
+      const sendBtnDeviant = document.getElementById('new');
+      sendBtnDeviant.addEventListener('click', () => {
+              fetch('https://ntfy.sh/YOURNTFY', {
+              method: 'POST', 
+              body: 'NewOne'
+              })
+              Toastify({
+                text: "The Frame is being updated !",
+                duration: 3000, 
+                gravity: "top", 
+                close: "true",
+                position: "right"
+              }).showToast();       
+          });
+     </script>
+
+  </body>
+</html>

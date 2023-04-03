@@ -1,0 +1,10 @@
+[Unit]
+Description = Frame
+After = multi-user.target network.target
+[Service]
+ExecStart=/usr/bin/python /home/pi/Frame/main.py
+WorkingDirectory=/home/pi/Frame
+User=root
+Type=idle
+[Install]
+WantedBy = multi-user.target

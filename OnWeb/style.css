@@ -1,0 +1,109 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
+  }
+  
+  nav {
+    background-color: #596275;
+    color: #fff;
+    height: 50px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+  }
+  
+  nav ul {
+    display: flex;
+    list-style: none;
+  }
+  
+  nav ul li {
+    margin-right: 20px;
+  }
+  
+  nav ul li a {
+    color: #fff;
+    text-decoration: none;
+  }
+  
+  .toggle-mode-btn {
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    outline: none;
+    text-transform: uppercase;
+  }
+  
+  .toggle-mode-btn:hover {
+    text-decoration: underline;
+  }
+  
+  main {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 50px;
+  }
+  
+  h1 {
+    font-size: 36px;
+    margin-bottom: 30px;
+  }
+  
+  .image-upload-container label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .image-upload-container input[type="file"] {
+    display: block;
+    margin-bottom: 20px;
+  }
+  
+  .image-change-container {
+    margin-bottom: 20px;
+  }
+  
+  .update-container select {
+    margin-right: 10px;
+  }
+  
+  .dark-mode {
+    background-color: #20232a;
+    color: #fff;
+  }
+  
+  .dark-mode nav {
+    background-color: #1a1d23;
+  }
+  
+  .dark-mode nav ul li a {
+    color: #fff;
+  }
+  .button {
+    background-color: #d8b6ff;
+    border: none;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    border-radius: 25px;
+    transition: all 0.2s ease;
+  }
+  
+  .button:hover {
+    opacity: 0.8;
+    transform: scale(1.1);
+  }
+  #new{
+    cursor:pointer;
+  }
