@@ -42,9 +42,14 @@ pip install plexapi
 pip install flask
 ```
 
+
 To start the local dashboard manually run :
 ```bash
-python3 dashboard.py
+=======
+To start the local dashboard run :
+```bash
+pip install flask
+mainpython3 dashboard.py
 ```
 ### For automation
 `install.sh` already installs the service file for you. If you want to
