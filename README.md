@@ -20,26 +20,38 @@ To properly configure the frame, you need to go to the deviantart.py, plex.py, a
 
 The dashboard is now served locally with Flask so no external notification service is required.
 
-Finally, before launching everything, run these commands in the SSH of the Raspberry:
+### Quick installation script
+Instead of installing everything manually you can simply run the provided script:
 
-```ssh
+```bash
+sudo ./install.sh
+```
+
+It installs the required Python packages, copies the `frame.service` file and
+starts the dashboard automatically.
+
+If you prefer to do it manually the old instructions are still below for
+reference.
+
+Run these commands in the SSH of the Raspberry:
+
+```bash
 pip install Pillow
 pip install requests
 pip install plexapi
+pip install flask
 ```
 
-To start the local dashboard run :
+To start the local dashboard manually run :
 ```bash
-pip install flask
 python3 dashboard.py
 ```
-### For automation.
-Put the frame.service file in this folder:
-/etc/systemd/system/
+### For automation
+`install.sh` already installs the service file for you. If you want to
+manage it manually, copy `OnFrame/frame.service` to
+`/etc/systemd/system/` and run:
 
-Then run 
-
-``` ssh
+```bash
 sudo systemctl daemon-reload
 sudo systemctl enable frame.service
 sudo systemctl start frame.service
