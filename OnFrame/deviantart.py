@@ -2,10 +2,12 @@ import requests
 import random
 import shutil
 import json
-import urllib.request
 import os
 from PIL import Image
 from datetime import datetime
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WEB_DIR = os.path.join(BASE_DIR, "OnWeb")
 
 
 def deviantart():
@@ -29,42 +31,15 @@ def deviantart():
     # Retrieving access token from API response
     access_token = response.json()["access_token"]
 
-    ban_url_tag = "OnWeb.com/tags.json"
-    destination = "tags.json"
-
-    # Delete the old file if it exists
-    if os.path.exists(destination):
-        os.remove(destination)
-
-    # Download JSON file and save to specified destination
-    try:
-        urllib.request.urlretrieve("OnWeb.com/tags.json", "tags.json")
-        # print("Téléchargement réussi!")
-    except Exception as e:
-        print("Error downloading tags.json : ", e)
-
-    # Load tags from tags.json file
-    with open('tags.json', 'r') as f:
+    tags_path = os.path.join(WEB_DIR, 'tags.json')
+    with open(tags_path, 'r') as f:
         json_tag = json.load(f)['tag']
         convert_json_tag = [item['name'] for item in json_tag]
     tag = random.choice(convert_json_tag)
 
 
-    ban_url_tag = "OnWeb.com/bantag.json"
-    destination = "bantag.json"
-
-    # Delete the old file if it exists
-    if os.path.exists(destination):
-        os.remove(destination)
-
-    # Download JSON file and save to specified destination
-    try:
-        urllib.request.urlretrieve("OnWeb.com/bantag.json", "bantag.json")
-    except Exception as e:
-        print("Error downloading bantag.json : ", e)
-
-    # Load forbidden tags from bantag.json file
-    with open('bantag.json', 'r') as f:
+    bantag_path = os.path.join(WEB_DIR, 'bantag.json')
+    with open(bantag_path, 'r') as f:
         json_exclude_tag = json.load(f)['ban']
         convert_json_exclude_tag = [item['name'] for item in json_exclude_tag]
     exclude_tag = ", ".join(convert_json_exclude_tag)
