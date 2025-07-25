@@ -2,27 +2,20 @@ from deviantart import deviantart
 from fixed_download import fixed_download
 from plex import plex
 from display import display
-import requests
-import urllib.request
-import time
 import json
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+WEB_DIR = os.path.join(BASE_DIR, "OnWeb")
+
 def download():
-    destination = "function.json"
+    destination = os.path.join(WEB_DIR, "function.json")
 
-    # Delete the old file if it exists
-    if os.path.exists(destination):
-        os.remove(destination)
+    if not os.path.exists(destination):
+        print("function.json not found")
+        return False
 
-    # Download JSON file and save to specified destination
-    try:
-        urllib.request.urlretrieve("OnWeb.com/function.json", "function.json")
-    except Exception as e:
-        print("Erreur lors du téléchargement function.json : ", e)
-
-
-    with open("function.json") as f:
+    with open(destination) as f:
         data = json.load(f)
     print(data["function"])
 
