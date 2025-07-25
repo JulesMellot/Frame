@@ -18,7 +18,7 @@ To fully use The Frame, open all the files and change the capitalized informatio
 ## OnFrame setup
 To properly configure the frame, you need to go to the deviantart.py, plex.py, and fixed.py files to enter the required information (I've tried to provide comments wherever possible).
 
-You also need a channel on NTFY.sh.
+The dashboard is now served locally with Flask so no external notification service is required.
 
 Finally, before launching everything, run these commands in the SSH of the Raspberry:
 
@@ -28,9 +28,10 @@ pip install requests
 pip install plexapi
 ```
 
-To test run :
-```ssh
-python3 main.py
+To start the local dashboard run :
+```bash
+pip install flask
+python3 dashboard.py
 ```
 ### For automation.
 Put the frame.service file in this folder:
