@@ -35,3 +35,4 @@ def display():
     # Puts the screen in sleep mode
     epd.sleep()
     return True
+
