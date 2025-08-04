@@ -1,10 +1,16 @@
 import os
 
+from .plugins import register_plugin
+
+
 # Download the static image from the local web folder
 def fixed_download():
-    src = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                       'OnWeb', 'img.png')
-    dst = 'img.png'
+    src = os.path.join(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
+        "OnWeb",
+        "img.png",
+    )
+    dst = "img.png"
 
     if not os.path.exists(src):
         print('img.png not found in OnWeb directory')
@@ -14,3 +20,6 @@ def fixed_download():
         fdst.write(fsrc.read())
     print("FIXED DOWNLOADED")
     return True
+
+
+register_plugin("fixed", fixed_download)

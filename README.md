@@ -1,78 +1,102 @@
-# Frame for Raspberry pi 🖼️
+# Frame for Raspberry Pi 🖼️
 
-Hello ! This is the reposit of my Frame 
+A pluggable image frame built on Flask and a Waveshare e‑Ink display. The dashboard lets you upload pictures, fetch them from external services, and trigger refreshes either manually or on a schedule.
 
-## Require to do 
-The latest version of the OS for your Raspberry Pi.
+## Features
+- Web dashboard for uploading images and managing configuration
+- Pluggable image sources (DeviantArt, Plex, fixed images, or custom plugins)
+- Optional scheduler for periodic refreshes
+- REST API protected by bearer token
+- Runs on Raspberry Pi with Waveshare e‑Ink display
 
-For this project i use Waveshare 7in3 7colors screen (you can find in amazon)
-Then I followed the steps of their [documentations](https://www.waveshare.com/wiki/7.3inch_e-Paper_HAT_(F)_Manual#Python). You have to do the setup.py to have share python lib 
+## Architecture
+```mermaid
+graph TD
+    A[Browser] -->|HTTP| B[Flask dashboard]
+    B -->|send message| C[ntfy topic]
+    C -->|notify| D[frame/main.py]
+    D --> E[frame/download.py]
+    S[Scheduler] --> E
+    E -->|image| F[frame/display.py]
+    E --> G[Plugins]
+```
 
-Finally, you need to install Comitup, but using this [tutorial](https://github.com/davesteele/comitup/wiki/Installing-Comitup)
+## Quickstart
+1. **Clone and enter the repository**
+   ```bash
+   git clone https://github.com/your-user/Frame.git
+   cd Frame
+   ```
+2. **(Optional) Create a virtual environment**
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+3. **Install dependencies**
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. **Configure environment variables**
+   ```bash
+   cp .env.example .env
+   # edit .env with your API_TOKEN, NTFY_URL, DeviantArt and Plex credentials, etc.
+   ```
+5. **Run the dashboard**
+   ```bash
+   python dashboard.py
+   ```
+   Visit http://localhost:5000 to use the web interface.
 
-## OnWeb setup
+## Configuration
+Environment variables loaded from `.env` control behaviour:
 
-To fully use The Frame, open all the files and change the capitalized information. Then, you need to host it on a web server (either locally or on a remote server).
-(PHP require)
+| Variable | Description |
+|---|---|
+| `API_TOKEN` | Bearer token required for API requests |
+| `NTFY_URL` | ntfy topic used to signal frame updates |
+| `DEVIANTART_CLIENT_ID`, `DEVIANTART_CLIENT_SECRET` | DeviantArt credentials |
+| `PLEX_URL`, `PLEX_TOKEN`, `PLEX_LIBRARY` | Plex server info |
+| `UPDATE_INTERVAL` | Seconds between automatic refreshes (0 disables scheduler) |
 
-## OnFrame setup
-To properly configure the frame, you need to go to the deviantart.py, plex.py, and fixed.py files to enter the required information (I've tried to provide comments wherever possible).
+## Development
+Run linting and tests before committing:
 
-The dashboard is now served locally with Flask so no external notification service is required.
+```bash
+python -m py_compile dashboard.py frame/*.py
+flake8 .
+mypy .
+pytest
+```
 
-### Quick installation script
-Instead of installing everything manually you can simply run the provided script:
+## Deployment
+### install.sh
+On Raspberry Pi, run:
 
 ```bash
 sudo ./install.sh
 ```
 
-It installs the required Python packages, copies the `frame.service` file and
-starts the dashboard automatically.
-
-If you prefer to do it manually the old instructions are still below for
-reference.
-
-Run these commands in the SSH of the Raspberry:
+### Docker
+Build and run inside a container:
 
 ```bash
-pip install Pillow
-pip install requests
-pip install plexapi
-pip install flask
+docker build -t frame .
+docker run --env-file .env -p 5000:5000 frame
 ```
 
+## Extending
+Create a module that downloads an image and register it:
 
-To start the local dashboard manually run :
-```bash
-=======
-To start the local dashboard run :
-```bash
-pip install flask
-mainpython3 dashboard.py
-```
-### For automation
-`install.sh` already installs the service file for you. If you want to
-manage it manually, copy `OnFrame/frame.service` to
-`/etc/systemd/system/` and run:
+```python
+from frame.plugins import register_plugin
 
-```bash
-sudo systemctl daemon-reload
-sudo systemctl enable frame.service
-sudo systemctl start frame.service
+def my_source(destination: str) -> None:
+    # download image to destination
+
+register_plugin("my_source", my_source)
 ```
 
-For the automatic update at 9 AM.
-``` ssh
-crontab -e
-```
-and add 
-```
-0 9 * * * python3 /home/pi/Frame/send.py
-```
-## Disclaimer
-I'm a beginner in all areas of this project, so the files may not be perfectly written, and the website design may not be amazing. But the goal of sharing this project is to make it cooler and better over time!
+## License
+[MIT](LICENSE)
 
-I did my best to comment on all the lines that I found important. And I must say, as a good Frenchman, my English is not the best you'll ever read...
-
-✨Amusez-vous bien✨
+Merci et bonne journée !

@@ -5,6 +5,12 @@ import json
 import os
 from PIL import Image
 from datetime import datetime
+from .config import (
+    DEVIANTART_CLIENT_ID,
+    DEVIANTART_CLIENT_SECRET,
+    NTFY_URL,
+)
+from .plugins import register_plugin
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(BASE_DIR, "OnWeb")
@@ -12,8 +18,8 @@ WEB_DIR = os.path.join(BASE_DIR, "OnWeb")
 
 def deviantart():
     # Your client ID and your client secret
-    client_id = "Your client id"
-    client_secret = "Your client secret"
+    client_id = DEVIANTART_CLIENT_ID
+    client_secret = DEVIANTART_CLIENT_SECRET
 
     # The DeviantArt OAuth API URL
     url = "https://www.deviantart.com/oauth2/token"
@@ -103,13 +109,15 @@ def deviantart():
                         shutil.copyfileobj(response.raw, f)
                         print("Still had been downloaded with tag : " + tag)
 
-                        requests.post("https://ntfy.sh/YOURNTFY",
-                        data="Frame had been updated with tag :" + tag,
-                        headers={
-                            "Title": "Update on Frame",
-                            "Click": img_url,
-                            "Tags": "framed_picture"
-                        })
+                        requests.post(
+                            NTFY_URL,
+                            data="Frame had been updated with tag :" + tag,
+                            headers={
+                                "Title": "Update on Frame",
+                                "Click": img_url,
+                                "Tags": "framed_picture",
+                            },
+                        )
 
                         image_found = True
                         return True
@@ -120,4 +128,5 @@ def deviantart():
                 print("Still dont have a good resolution, Frame had your convert and retry :)")
         else:
             print("The image must be in portrait mode (height > width)")
-            
+register_plugin("deviantart", deviantart)
+

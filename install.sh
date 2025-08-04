@@ -24,7 +24,7 @@ apt-get install -y python3-pip git
 pip3 install --no-cache-dir Pillow requests plexapi flask waveshare-epd
 
 echo "Installing systemd service..."
-cp OnFrame/frame.service /etc/systemd/system/frame.service
+cp frame/frame.service /etc/systemd/system/frame.service
 systemctl daemon-reload
 systemctl enable frame.service
 systemctl start frame.service

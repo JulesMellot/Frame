@@ -1,0 +1,6 @@
+flask
+requests
+Pillow
+plexapi
+python-dotenv
+# waveshare-epd is required only on devices with the e-Paper display
