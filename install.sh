@@ -19,9 +19,14 @@ fi
 
 cd "$TARGET_DIR"
 
-echo "Installing dependencies..."
+echo "Installing system dependencies..."
 apt-get update
-apt-get install -y python3-pip python3-venv git
+apt-get install -y python3-pip python3-venv python3-pil python3-numpy python3-smbus git
+apt-get install -y python3-spidev python3-rpi.gpio
+
+# Enable SPI interface
+echo "Enabling SPI interface..."
+raspi-config nonint do_spi 0
 
 # Create a virtual environment
 echo "Creating virtual environment..."
@@ -36,6 +41,14 @@ pip install --upgrade pip
 # Install Python dependencies in the virtual environment
 echo "Installing Python dependencies..."
 pip install --no-cache-dir -r requirements.txt
+
+# Install Waveshare e-Paper library
+echo "Installing Waveshare e-Paper library..."
+cd /tmp
+git clone https://github.com/waveshare/e-Paper.git
+cd e-Paper/RaspberryPi_JetsonNano/python
+python3 setup.py install
+cd "$TARGET_DIR"
 
 echo "Installing systemd service..."
 # Update the service file to use the virtual environment
