@@ -54,7 +54,7 @@
           formData.append('image', file);
           const xhr = new XMLHttpRequest();
           xhr.open('POST', 'api/upload');
-          xhr.setRequestHeader('Authorization', 'Bearer ' + API_TOKEN);
+          xhr.setRequestHeader('Authorization', 'Bearer ' + window.FrameConfig.API_TOKEN);
           xhr.onload = () => {
               if (xhr.status === 200) {
                 Toastify({
@@ -83,7 +83,7 @@
               fetch('api/new', {
               method: 'POST',
               headers: {
-                'Authorization': 'Bearer ' + API_TOKEN
+                'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
               }
               })
               Toastify({

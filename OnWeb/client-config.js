@@ -1,5 +1,7 @@
 // Récupérer la configuration depuis le backend
-let API_TOKEN = null;
+window.FrameConfig = {
+    API_TOKEN: null
+};
 
 // Fonction pour récupérer le token depuis le backend
 async function fetchApiToken() {
@@ -7,7 +9,7 @@ async function fetchApiToken() {
         const response = await fetch('/api/config');
         const data = await response.json();
         if (data.success && data.api_token) {
-            API_TOKEN = data.api_token;
+            window.FrameConfig.API_TOKEN = data.api_token;
         }
     } catch (error) {
         console.error('Erreur lors de la récupération du token API:', error);

@@ -37,7 +37,7 @@
       fetch('/api/token', {
         method: 'GET',
         headers: {
-          'Authorization': 'Bearer ' + API_TOKEN
+          'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
         }
       })
       .then(response => response.json())

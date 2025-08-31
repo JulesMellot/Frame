@@ -11,7 +11,7 @@ form.addEventListener('submit', function(event) {
                 method: 'POST',
                 headers: {
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + API_TOKEN
+                        'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
                 },
                 body: JSON.stringify(data)
         })
