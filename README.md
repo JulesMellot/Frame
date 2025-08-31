@@ -181,14 +181,23 @@ This project uses GitHub Actions for continuous integration. The CI workflow run
 You can view the CI status in the "Actions" tab of the GitHub repository.
 
 ## Deployment
-### install.sh
+
+### Installation Script (Raspberry Pi)
+
 On Raspberry Pi, run:
 
 ```bash
 sudo ./install.sh
 ```
 
+This script will:
+1. Copy the project to `/home/pi/Frame`
+2. Create a Python virtual environment
+3. Install all dependencies in the virtual environment
+4. Set up and start the systemd service
+
 ### Docker
+
 Build and run inside a container:
 
 ```bash

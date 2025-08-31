@@ -2,7 +2,7 @@
 Description = Frame
 After = multi-user.target network.target
 [Service]
-ExecStart=/usr/bin/python /home/pi/Frame/dashboard.py
+ExecStart=/home/pi/Frame/venv/bin/python dashboard.py
 WorkingDirectory=/home/pi/Frame
 User=root
 Type=idle

@@ -3,6 +3,7 @@ set -e
 
 TARGET_DIR="/home/pi/Frame"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+VENV_DIR="$TARGET_DIR/venv"
 
 if [ "$EUID" -ne 0 ]; then
     echo "Please run this script as root (e.g. with sudo)"
@@ -20,10 +21,25 @@ cd "$TARGET_DIR"
 
 echo "Installing dependencies..."
 apt-get update
-apt-get install -y python3-pip git
-pip3 install --no-cache-dir Pillow requests plexapi flask waveshare-epd
+apt-get install -y python3-pip python3-venv git
+
+# Create a virtual environment
+echo "Creating virtual environment..."
+python3 -m venv "$VENV_DIR"
+
+# Activate the virtual environment
+source "$VENV_DIR/bin/activate"
+
+# Upgrade pip in the virtual environment
+pip install --upgrade pip
+
+# Install Python dependencies in the virtual environment
+echo "Installing Python dependencies..."
+pip install --no-cache-dir -r requirements.txt
 
 echo "Installing systemd service..."
+# Update the service file to use the virtual environment
+sed -i "s|ExecStart=.*|ExecStart=$VENV_DIR/bin/python dashboard.py|" frame/frame.service
 cp frame/frame.service /etc/systemd/system/frame.service
 systemctl daemon-reload
 systemctl enable frame.service
