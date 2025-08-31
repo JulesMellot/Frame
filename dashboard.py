@@ -23,6 +23,8 @@ def require_auth(func):
     def wrapper(*args, **kwargs):
         header = request.headers.get("Authorization", "")
         token = header.split(" ")[-1] if header.startswith("Bearer ") else header
+        print(f"API_TOKEN from config: {API_TOKEN}")
+        print(f"Token from request: {token}")
         if not API_TOKEN or token != API_TOKEN:
             return "Unauthorized", 401
         return func(*args, **kwargs)
@@ -70,9 +72,15 @@ def upload_image_from_url():
         response.raise_for_status()
         
         # Vérifier que le contenu est une image
-        content_type = response.headers.get('content-type', '')
+        content_type = response.headers.get('content-type', '').lower()
         if not content_type.startswith('image/'):
-            return jsonify(success=False, error='URL does not point to an image'), 400
+            # Essayer de vérifier l'extension du fichier si le content-type n'est pas clair
+            import urllib.parse
+            parsed_url = urllib.parse.urlparse(image_url)
+            path = parsed_url.path.lower()
+            image_extensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp']
+            if not any(path.endswith(ext) for ext in image_extensions):
+                return jsonify(success=False, error=f'URL does not point to an image (content-type: {content_type})'), 400
         
         # Sauvegarder l'image
         image_path = os.path.join(WEB_DIR, 'img.png')
@@ -120,6 +128,7 @@ def update_bantags():
 @app.route('/api/new', methods=['POST'])
 @require_auth
 def trigger_new():
+    print("trigger_new called")
     download()
     return jsonify(success=True)
 
