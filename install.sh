@@ -41,8 +41,15 @@ echo "Installing systemd service..."
 # Update the service file to use the virtual environment
 sed -i "s|ExecStart=.*|ExecStart=$VENV_DIR/bin/python dashboard.py|" frame/frame.service
 cp frame/frame.service /etc/systemd/system/frame.service
+
+# Copy the update script to a convenient location
+echo "Installing update script..."
+cp update.sh /usr/local/bin/frame-update
+chmod +x /usr/local/bin/frame-update
+
 systemctl daemon-reload
 systemctl enable frame.service
 systemctl start frame.service
 
 echo "Installation complete!"
+echo "You can update the Frame software at any time by running: sudo frame-update"
