@@ -31,13 +31,37 @@ REMOTE=$(git rev-parse origin/main)
 
 if [ "$LOCAL" = "$REMOTE" ]; then
     echo "Already up to date."
-    exit 0
+else
+    echo "Updates available. Updating..."
+    # Mettre à jour le code
+    git pull origin main
 fi
 
-echo "Updates available. Updating..."
+# Vérifier et installer les dépendances système si nécessaire
+echo "Checking system dependencies..."
+apt-get update
+apt-get install -y python3-pip python3-venv python3-pil python3-numpy python3-smbus
+apt-get install -y python3-spidev python3-rpi.gpio
 
-# Mettre à jour le code
-git pull origin main
+# Vérifier si la bibliothèque Waveshare est installée
+echo "Checking Waveshare e-Paper library..."
+if ! python3 -c "import waveshare_epd.epd7in3f" 2>/dev/null; then
+    echo "Installing Waveshare e-Paper library..."
+    cd /tmp
+    if [ -d "e-Paper" ]; then
+        rm -rf e-Paper
+    fi
+    git clone https://github.com/waveshare/e-Paper.git
+    cd e-Paper/RaspberryPi_JetsonNano/python
+    python3 setup.py install
+    cd "$TARGET_DIR"
+else
+    echo "Waveshare e-Paper library already installed"
+fi
+
+# Activer l'interface SPI si nécessaire
+echo "Enabling SPI interface..."
+raspi-config nonint do_spi 0
 
 # Mettre à jour les dépendances dans l'environnement virtuel
 echo "Updating dependencies..."
