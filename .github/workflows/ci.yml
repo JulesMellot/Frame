@@ -17,6 +17,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install flake8 black mypy pytest
+      - name: Check Python syntax
+        run: |
+          python -m py_compile dashboard.py frame/*.py
       - name: Lint
         run: |
           black --check tests
@@ -24,3 +27,15 @@ jobs:
           mypy .
       - name: Test
         run: pytest
+      - name: Test application startup
+        run: |
+          # Create a minimal .env file for testing
+          echo "API_TOKEN=test_token" > .env
+          # Test that the application can be imported without errors
+          python -c "import dashboard; print('Application imports successfully')"
+      - name: Test application functionality
+        run: |
+          # Create a minimal .env file for testing
+          echo "API_TOKEN=test_token" > .env
+          # Run the application tests
+          python -m pytest tests/test_app.py -v

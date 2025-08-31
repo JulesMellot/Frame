@@ -134,14 +134,51 @@ curl -X POST \
 Replace `"DeviantArt"` with `"plex"` or `"fixed"` as needed.
 
 ## Development
-Run linting and tests before committing:
+
+### Running Tests
+
+The project includes automated tests to ensure everything works correctly:
 
 ```bash
-python -m py_compile dashboard.py frame/*.py
-flake8 .
-mypy .
+# Run all tests
 pytest
+
+# Run specific test files
+python -m pytest tests/test_app.py -v
+python -m pytest tests/test_upload_api.py -v
 ```
+
+### Code Quality Checks
+
+Before committing, run these checks:
+
+```bash
+# Check Python syntax
+python -m py_compile dashboard.py frame/*.py
+
+# Linting
+flake8 .
+
+# Type checking
+mypy .
+
+# Format code (optional)
+black tests
+```
+
+### Continuous Integration
+
+This project uses GitHub Actions for continuous integration. The CI workflow runs automatically on every push and pull request, performing these checks:
+
+1. Install dependencies
+2. Check Python syntax
+3. Run linting (flake8, black)
+4. Run type checking (mypy)
+5. Run unit tests (pytest)
+6. Test application startup
+7. Test application functionality
+
+You can view the CI status in the "Actions" tab of the GitHub repository.
 
 ## Deployment
 ### install.sh
