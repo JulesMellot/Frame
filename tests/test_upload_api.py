@@ -37,11 +37,10 @@ class TestUploadAPI(unittest.TestCase):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     @patch("dashboard.is_configured")
-    @patch("dashboard.WEB_DIR")
-    def test_upload_url_route_exists(self, mock_web_dir, mock_is_configured):
+    @patch("frame.display.EPD_AVAILABLE", False)
+    def test_upload_url_route_exists(self, mock_is_configured):
         """Test that the upload_url route is defined"""
         mock_is_configured.return_value = True
-        mock_web_dir.return_value = self.web_dir
 
         import dashboard
 
@@ -50,11 +49,10 @@ class TestUploadAPI(unittest.TestCase):
         self.assertIn("/api/upload_url", routes, "Route /api/upload_url is not defined")
 
     @patch("dashboard.is_configured")
-    @patch("dashboard.WEB_DIR")
-    def test_upload_url_route_method(self, mock_web_dir, mock_is_configured):
+    @patch("frame.display.EPD_AVAILABLE", False)
+    def test_upload_url_route_method(self, mock_is_configured):
         """Test that the upload_url route accepts POST method"""
         mock_is_configured.return_value = True
-        mock_web_dir.return_value = self.web_dir
 
         import dashboard
 

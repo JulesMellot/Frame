@@ -33,6 +33,7 @@ class TestApp(unittest.TestCase):
         shutil.rmtree(self.test_dir, ignore_errors=True)
 
     @patch("dashboard.is_configured")
+    @patch("frame.display.EPD_AVAILABLE", False)
     def test_app_imports(self, mock_is_configured):
         """Test that the application can be imported without errors"""
         mock_is_configured.return_value = True
@@ -44,6 +45,7 @@ class TestApp(unittest.TestCase):
             self.fail(f"Failed to import dashboard: {e}")
 
     @patch("dashboard.is_configured")
+    @patch("frame.display.EPD_AVAILABLE", False)
     def test_app_routes(self, mock_is_configured):
         """Test that the application routes are defined"""
         mock_is_configured.return_value = True
@@ -54,6 +56,7 @@ class TestApp(unittest.TestCase):
         expected_routes = [
             "/",
             "/setup",
+            "/<path:path>",
             "/api/upload",
             "/api/upload_url",
             "/api/function",

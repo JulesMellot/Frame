@@ -1,9 +1,21 @@
 import os
 from PIL import Image, ImageEnhance
-from waveshare_epd.epd7in3f import EPD
+
+# Importation conditionnelle du module EPD
+try:
+    from waveshare_epd.epd7in3f import EPD
+    EPD_AVAILABLE = True
+except ImportError:
+    EPD = None
+    EPD_AVAILABLE = False
 
 #Definition of the display() command
 def display():
+    # Si le module EPD n'est pas disponible, on affiche un message et on retourne True
+    if not EPD_AVAILABLE:
+        print("EPD module not available, skipping display")
+        return True
+    
     # Initialize the screen
     epd = EPD()
     epd.init()
