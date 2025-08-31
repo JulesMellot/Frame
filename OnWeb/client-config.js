@@ -7,9 +7,16 @@ window.FrameConfig = {
 async function fetchApiToken() {
     try {
         const response = await fetch('/api/config');
+        if (!response.ok) {
+            console.error('Erreur HTTP lors de la récupération du token API:', response.status);
+            return;
+        }
         const data = await response.json();
         if (data.success && data.api_token) {
             window.FrameConfig.API_TOKEN = data.api_token;
+            console.log('Token API récupéré avec succès');
+        } else {
+            console.warn('Token API non disponible dans la réponse');
         }
     } catch (error) {
         console.error('Erreur lors de la récupération du token API:', error);

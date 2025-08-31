@@ -33,30 +33,46 @@
     <script src="client-config.js"></script>
     <script src="app.js"></script>
     <script>
-      // Récupérer le token API
-      fetch('/api/token', {
-        method: 'GET',
-        headers: {
-          'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
-        }
-      })
-      .then(response => response.json())
-      .then(data => {
-        if (data.success) {
-          document.getElementById('token-value').textContent = data.api_token;
+      // Attendre que le token soit chargé
+      function waitForToken() {
+        if (window.FrameConfig && window.FrameConfig.API_TOKEN) {
+          // Récupérer le token API
+          fetch('/api/token', {
+            method: 'GET',
+            headers: {
+              'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
+            }
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('HTTP error ' + response.status);
+            }
+            return response.json();
+          })
+          .then(data => {
+            if (data.success) {
+              document.getElementById('token-value').textContent = data.api_token;
+            } else {
+              document.getElementById('token-value').textContent = 'Error loading token: ' + (data.error || 'Unknown error');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('token-value').textContent = 'Error loading token: ' + error.message;
+          });
         } else {
-          document.getElementById('token-value').textContent = 'Error loading token';
+          // Réessayer dans 100ms
+          setTimeout(waitForToken, 100);
         }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        document.getElementById('token-value').textContent = 'Error loading token';
-      });
+      }
+      
+      // Démarrer la vérification
+      waitForToken();
 
       // Copier le token dans le presse-papiers
       document.getElementById('copy-token').addEventListener('click', function() {
         const tokenValue = document.getElementById('token-value').textContent;
-        if (tokenValue && tokenValue !== 'Loading...' && tokenValue !== 'Error loading token') {
+        if (tokenValue && tokenValue !== 'Loading...' && !tokenValue.startsWith('Error')) {
           navigator.clipboard.writeText(tokenValue).then(() => {
             Toastify({
               text: t('tokenCopied'),

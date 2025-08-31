@@ -45,55 +45,113 @@
     <script src="app.js"></script>
     <script src="function.js"></script>
     <script>
+      // Fonction pour vérifier si le token est disponible
+      function checkTokenAndExecute(callback) {
+        if (window.FrameConfig && window.FrameConfig.API_TOKEN) {
+          callback();
+        } else {
+          // Attendre un peu et réessayer
+          setTimeout(() => {
+            if (window.FrameConfig && window.FrameConfig.API_TOKEN) {
+              callback();
+            } else {
+              Toastify({
+                text: "Please wait, still loading authentication token...",
+                duration: 3000,
+                gravity: "top",
+                close: "true",
+                position: "right"
+              }).showToast();
+              // Réessayer dans 500ms
+              setTimeout(() => {
+                if (window.FrameConfig && window.FrameConfig.API_TOKEN) {
+                  callback();
+                } else {
+                  Toastify({
+                    text: "Authentication token not available. Please refresh the page.",
+                    duration: 5000,
+                    gravity: "top",
+                    close: "true",
+                    position: "right"
+                  }).showToast();
+                }
+              }, 500);
+            }
+          }, 100);
+        }
+      }
+
       const imgform = document.getElementById('img-form');
       imgform.addEventListener('submit', (event) => {
           event.preventDefault();
-          const fileInput = document.querySelector('input[type="file"]');
-          const file = fileInput.files[0];
-          const formData = new FormData();
-          formData.append('image', file);
-          const xhr = new XMLHttpRequest();
-          xhr.open('POST', 'api/upload');
-          xhr.setRequestHeader('Authorization', 'Bearer ' + window.FrameConfig.API_TOKEN);
-          xhr.onload = () => {
-              if (xhr.status === 200) {
-                Toastify({
-                text: xhr.responseText,
-                duration: 3000, 
-                gravity: "top", 
-                close: "true",
-                position: "right"
-              }).showToast();       
-              } else {
-                  console.error(xhr.statusText);
+          checkTokenAndExecute(() => {
+            const fileInput = document.querySelector('input[type="file"]');
+            const file = fileInput.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+            const xhr = new XMLHttpRequest();
+            xhr.open('POST', 'api/upload');
+            xhr.setRequestHeader('Authorization', 'Bearer ' + window.FrameConfig.API_TOKEN);
+            xhr.onload = () => {
+                if (xhr.status === 200) {
                   Toastify({
-                    text: xhr.statusText,
-                    duration: 3000, 
-                    gravity: "top", 
-                    close: "true",
-                    position: "right"
-                  }).showToast();   
-              }
-          };
-          xhr.send(formData);
+                  text: xhr.responseText,
+                  duration: 3000, 
+                  gravity: "top", 
+                  close: "true",
+                  position: "right"
+                }).showToast();       
+                } else {
+                    console.error(xhr.statusText);
+                    Toastify({
+                      text: "Error: " + xhr.statusText,
+                      duration: 3000, 
+                      gravity: "top", 
+                      close: "true",
+                      position: "right"
+                    }).showToast();   
+                }
+            };
+            xhr.send(formData);
+          });
       });
 
       const sendBtnDeviant = document.getElementById('new');
       sendBtnDeviant.addEventListener('click', () => {
-              fetch('api/new', {
-              method: 'POST',
-              headers: {
-                'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
-              }
-              })
-              Toastify({
-                text: t('frameUpdating'),
-                duration: 3000, 
-                gravity: "top", 
-                close: "true",
-                position: "right"
-              }).showToast();       
+        checkTokenAndExecute(() => {
+          fetch('api/new', {
+            method: 'POST',
+            headers: {
+              'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
+            }
+          })
+          .then(response => {
+            if (response.ok) {
+              return response.json();
+            } else {
+              throw new Error('HTTP error ' + response.status);
+            }
+          })
+          .then(data => {
+            Toastify({
+              text: t('frameUpdating'),
+              duration: 3000, 
+              gravity: "top", 
+              close: "true",
+              position: "right"
+            }).showToast();
+          })
+          .catch(error => {
+            Toastify({
+              text: "Error: " + error.message,
+              duration: 3000, 
+              gravity: "top", 
+              close: "true",
+              position: "right"
+            }).showToast();
           });
+        });
+      });
      </script>
 
   </body>
