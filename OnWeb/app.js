@@ -1,4 +1,6 @@
-const API_TOKEN = 'changeme';
+// Le token API est maintenant récupéré dynamiquement depuis client-config.js
+// Cette variable sera définie dans client-config.js
+let API_TOKEN = null;
 
 function toggleMode() {
     const body = document.querySelector('body');

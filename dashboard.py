@@ -129,6 +129,18 @@ def get_api_token():
     """Retourne le token API actuel"""
     return jsonify(success=True, api_token=API_TOKEN)
 
+@app.route('/api/config', methods=['GET'])
+def get_client_config():
+    """Retourne la configuration nécessaire au client (comme le token API si authentifié)"""
+    # Vérifier si l'utilisateur est authentifié
+    header = request.headers.get("Authorization", "")
+    token = header.split(" ")[-1] if header.startswith("Bearer ") else header
+    if API_TOKEN and token == API_TOKEN:
+        return jsonify(success=True, api_token=API_TOKEN)
+    else:
+        # Retourner une configuration de base sans le token pour les utilisateurs non authentifiés
+        return jsonify(success=True, api_token=None)
+
 @app.route('/api/setup', methods=['POST'])
 def save_setup():
     if is_configured():
