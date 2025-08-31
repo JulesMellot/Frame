@@ -47,14 +47,8 @@ apt-get install -y python3-spidev python3-rpi.gpio
 echo "Checking Waveshare e-Paper library..."
 if ! python3 -c "import waveshare_epd.epd7in3f" 2>/dev/null; then
     echo "Installing Waveshare e-Paper library..."
-    cd /tmp
-    if [ -d "e-Paper" ]; then
-        rm -rf e-Paper
-    fi
-    git clone https://github.com/waveshare/e-Paper.git
-    cd e-Paper/RaspberryPi_JetsonNano/python
-    python3 setup.py install
-    cd "$TARGET_DIR"
+    # Utiliser pip au lieu de setup.py pour éviter les problèmes de dépendances
+    pip3 install git+https://github.com/waveshare/e-Paper.git#subdirectory=RaspberryPi_JetsonNano/python
 else
     echo "Waveshare e-Paper library already installed"
 fi
