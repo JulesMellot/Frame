@@ -125,9 +125,12 @@ def update_bantags():
         json.dump(cleaned, f)
     return jsonify(success=True, message='Banned tags updated')
 
-@app.route('/api/new', methods=['POST'])
+@app.route('/api/new', methods=['GET', 'POST'])
 @require_auth
 def trigger_new():
+    if request.method == 'GET':
+        return "This endpoint only accepts POST requests. Use POST to trigger a new image update.", 405
+    
     print("trigger_new called")
     download()
     return jsonify(success=True)
