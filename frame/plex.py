@@ -3,7 +3,7 @@ import requests
 from PIL import Image
 from plexapi.server import PlexServer
 from io import BytesIO
-from .config import PLEX_URL, PLEX_TOKEN, PLEX_LIBRARY, NTFY_URL
+from .config import PLEX_URL, PLEX_TOKEN, PLEX_LIBRARY
 from .plugins import register_plugin
 
 
@@ -16,6 +16,7 @@ def plex():
 
     # Retrieving list of all movies
     movies = plex.library.section(PLEX_LIBRARY).all()
+
 
     # Choice of a random movie
     movie = random.choice(movies)
@@ -35,15 +36,6 @@ def plex():
     response = requests.get(poster_url)
     image = Image.open(BytesIO(response.content)) 
     image.save('img.png')
-    requests.post(
-        NTFY_URL,
-        data="Frame have been updated with :" + movie.title + " poster",
-        headers={
-            "Title": "Update on Frame",
-            "Click": movie.guid,
-            "Tags": "framed_picture",
-        },
-    )
     return True
  
 

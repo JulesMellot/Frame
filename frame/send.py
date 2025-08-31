@@ -1,12 +1,6 @@
-import requests
-from .config import NTFY_URL
-
-
 def send_notification():
-    requests.post(
-        NTFY_URL,
-        data="NewOne",
-    )
+    # NTFY a été supprimé, cette fonction ne fait plus rien
+    pass
 
 
 if __name__ == "__main__":

@@ -1,9 +1,8 @@
 import time
-import requests
 import urllib.request
 
 from .download import download
-from .config import NTFY_URL, UPDATE_INTERVAL
+from .config import UPDATE_INTERVAL
 from .scheduler import Scheduler
 
 def check_internet():
@@ -13,24 +12,6 @@ def check_internet():
         return True
     except Exception:
         return False
-
-def listen_ntfy() -> None:
-    """Listen to the ntfy topic and trigger downloads on demand."""
-    while True:
-        try:
-            with requests.get(f"{NTFY_URL}/raw", stream=True, timeout=60) as resp:
-                for line in resp.iter_lines():
-                    if line:
-                        data_str = line.decode("utf-8").strip("\"")
-                        if data_str == "NewOne":
-                            download()
-        except KeyboardInterrupt:
-            print("Stopping listener")
-            break
-        except requests.RequestException as exc:
-            print(f"Connection error: {exc}. Retrying in 5s...")
-            time.sleep(5)
-
 
 def start_scheduler() -> Scheduler | None:
     """Start periodic downloads if configured."""
@@ -45,8 +26,12 @@ if __name__ == "__main__":
         print("CHECKING FOR INTERNET...")
         time.sleep(60)
     scheduler = start_scheduler()
+    # Boucle infinie pour garder le programme en cours d'exécution
     try:
-        listen_ntfy()
+        while True:
+            time.sleep(60)
+    except KeyboardInterrupt:
+        print("Stopping...")
     finally:
         if scheduler:
             scheduler.stop()

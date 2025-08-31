@@ -1,15 +1,21 @@
-from flask import Flask, request, send_from_directory, jsonify
+from flask import Flask, request, send_from_directory, jsonify, redirect, url_for
 from functools import wraps
 import os
 import json
+import requests
 
 from frame.download import download
 from frame.config import API_TOKEN
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 WEB_DIR = os.path.join(BASE_DIR, 'OnWeb')
+ENV_FILE = os.path.join(BASE_DIR, '.env')
 
 app = Flask(__name__, static_folder=WEB_DIR, static_url_path='')
+
+def is_configured():
+    """Vérifie si le fichier .env existe"""
+    return os.path.exists(ENV_FILE)
 
 
 def require_auth(func):
@@ -24,11 +30,22 @@ def require_auth(func):
 
 @app.route('/')
 def index():
+    if not is_configured():
+        return redirect(url_for('setup'))
     return send_from_directory(WEB_DIR, 'index.html')
 
 @app.route('/<path:path>')
 def static_proxy(path):
+    # Vérifier si le fichier .env existe pour les autres routes
+    if not is_configured() and path != 'setup.html' and not path.startswith('api/'):
+        return redirect(url_for('setup'))
     return send_from_directory(WEB_DIR, path)
+
+@app.route('/setup')
+def setup():
+    if is_configured():
+        return redirect(url_for('index'))
+    return send_from_directory(WEB_DIR, 'setup.html')
 
 @app.route('/api/upload', methods=['POST'])
 @require_auth
@@ -38,6 +55,35 @@ def upload_image():
         return 'No image uploaded', 400
     file.save(os.path.join(WEB_DIR, 'img.png'))
     return 'Image uploaded to server.'
+
+@app.route('/api/upload_url', methods=['POST'])
+@require_auth
+def upload_image_from_url():
+    data = request.get_json()
+    if not data or 'url' not in data:
+        return jsonify(success=False, error='URL is required'), 400
+    
+    image_url = data['url']
+    try:
+        # Télécharger l'image depuis l'URL
+        response = requests.get(image_url)
+        response.raise_for_status()
+        
+        # Vérifier que le contenu est une image
+        content_type = response.headers.get('content-type', '')
+        if not content_type.startswith('image/'):
+            return jsonify(success=False, error='URL does not point to an image'), 400
+        
+        # Sauvegarder l'image
+        image_path = os.path.join(WEB_DIR, 'img.png')
+        with open(image_path, 'wb') as f:
+            f.write(response.content)
+        
+        return jsonify(success=True, message='Image uploaded successfully')
+    except requests.RequestException as e:
+        return jsonify(success=False, error=f'Failed to download image: {str(e)}'), 400
+    except Exception as e:
+        return jsonify(success=False, error=f'Failed to save image: {str(e)}'), 500
 
 @app.route('/api/function', methods=['POST'])
 @require_auth
@@ -76,6 +122,33 @@ def update_bantags():
 def trigger_new():
     download()
     return jsonify(success=True)
+
+@app.route('/api/token', methods=['GET'])
+@require_auth
+def get_api_token():
+    """Retourne le token API actuel"""
+    return jsonify(success=True, api_token=API_TOKEN)
+
+@app.route('/api/setup', methods=['POST'])
+def save_setup():
+    if is_configured():
+        return jsonify(success=False, error="Already configured"), 400
+    
+    data = request.get_json()
+    if not data:
+        return jsonify(success=False, error="Invalid data"), 400
+    
+    # Si aucun token API n'est fourni, en générer un automatiquement
+    if 'API_TOKEN' not in data or not data['API_TOKEN']:
+        import secrets
+        data['API_TOKEN'] = secrets.token_urlsafe(32)
+    
+    # Créer le fichier .env avec les paramètres fournis
+    with open(ENV_FILE, 'w') as f:
+        for key, value in data.items():
+            f.write(f"{key}={value}\n")
+    
+    return jsonify(success=True, api_token=data['API_TOKEN'])
 
 
 def _validate_words(payload, key):

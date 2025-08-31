@@ -8,7 +8,6 @@ from datetime import datetime
 from .config import (
     DEVIANTART_CLIENT_ID,
     DEVIANTART_CLIENT_SECRET,
-    NTFY_URL,
 )
 from .plugins import register_plugin
 
@@ -108,16 +107,6 @@ def deviantart():
                         print("Still's URL : " + img_src)
                         shutil.copyfileobj(response.raw, f)
                         print("Still had been downloaded with tag : " + tag)
-
-                        requests.post(
-                            NTFY_URL,
-                            data="Frame had been updated with tag :" + tag,
-                            headers={
-                                "Title": "Update on Frame",
-                                "Click": img_url,
-                                "Tags": "framed_picture",
-                            },
-                        )
 
                         image_found = True
                         return True

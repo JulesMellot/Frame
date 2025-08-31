@@ -1,10 +1,11 @@
 import os
 from dotenv import load_dotenv
 
-load_dotenv()
+# Déterminer quel fichier .env charger
+env_file = os.getenv("ENV_FILE", ".env")
+load_dotenv(env_file)
 
 API_TOKEN = os.getenv("API_TOKEN")
-NTFY_URL = os.getenv("NTFY_URL")
 PLEX_URL = os.getenv("PLEX_URL")
 PLEX_TOKEN = os.getenv("PLEX_TOKEN")
 PLEX_LIBRARY = os.getenv("PLEX_LIBRARY")
