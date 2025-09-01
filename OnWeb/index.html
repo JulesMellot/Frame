@@ -66,6 +66,11 @@
             background-color: rgba(255,255,255,0.2);
         }
 
+        .nav-links a.active {
+            background-color: rgba(255,255,255,0.3);
+            font-weight: bold;
+        }
+
         .toggle-mode-btn {
             background-color: #3498db;
             color: white;
@@ -135,7 +140,8 @@
         input[type="file"],
         input[type="text"],
         input[type="password"],
-        select {
+        select,
+        textarea {
             width: 100%;
             padding: 10px;
             border: 1px solid #ddd;
@@ -146,7 +152,8 @@
         body.dark-mode input[type="file"],
         body.dark-mode input[type="text"],
         body.dark-mode input[type="password"],
-        body.dark-mode select {
+        body.dark-mode select,
+        body.dark-mode textarea {
             background-color: #404040;
             color: white;
             border-color: #555;
@@ -194,6 +201,14 @@
             background-color: #d35400;
         }
 
+        .button.danger {
+            background-color: #e74c3c;
+        }
+
+        .button.danger:hover {
+            background-color: #c0392b;
+        }
+
         .status {
             padding: 15px;
             border-radius: 4px;
@@ -238,6 +253,32 @@
 
         .hidden {
             display: none;
+        }
+
+        .token-input-section {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        body.dark-mode .token-input-section {
+            background-color: #3a331d;
+            border-color: #5a4a1d;
+        }
+
+        .token-display {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+            word-break: break-all;
+            font-family: monospace;
+        }
+
+        body.dark-mode .token-display {
+            background-color: #495057;
         }
 
         footer {
@@ -292,39 +333,54 @@
             <div id="page-home">
                 <h1>Frame Admin 🖼️</h1>
                 
-                <div class="section">
-                    <h2>Télécharger une image</h2>
-                    <form id="upload-form" enctype="multipart/form-data">
-                        <div class="form-group">
-                            <label for="image-upload">Sélectionnez une image :</label>
-                            <input type="file" id="image-upload" name="image" accept="image/*" required>
-                        </div>
-                        <button type="submit" class="button success">📤 Télécharger</button>
-                    </form>
-                    <div id="upload-status" class="status hidden"></div>
+                <!-- Section pour entrer le token API -->
+                <div class="token-input-section">
+                    <h2>🔐 Configuration du Token API</h2>
+                    <div class="form-group">
+                        <label for="manual-api-token">Entrez votre Token API :</label>
+                        <input type="text" id="manual-api-token" placeholder="Votre token API ici...">
+                    </div>
+                    <button id="save-token" class="button success">💾 Enregistrer le Token</button>
+                    <button id="clear-token" class="button danger">🗑️ Effacer le Token</button>
+                    <div id="token-input-status" class="status hidden"></div>
                 </div>
 
-                <div class="section">
-                    <h2>Fonction d'affichage</h2>
-                    <form id="function-form">
-                        <div class="form-group">
-                            <label for="function-select">Sélectionnez la fonction à exécuter :</label>
-                            <select id="function-select" name="function">
-                                <option value="DeviantArt">Deviant Art</option>
-                                <option value="plex">Plex</option>
-                                <option value="fixed">Image Fixe</option>
-                            </select>
-                        </div>
-                        <button type="submit" class="button">💾 Enregistrer</button>
-                    </form>
-                    <div id="function-status" class="status hidden"></div>
-                </div>
+                <!-- Section d'upload d'image (visible seulement si token présent) -->
+                <div id="upload-section" class="hidden">
+                    <div class="section">
+                        <h2>📤 Télécharger une image</h2>
+                        <form id="upload-form" enctype="multipart/form-data">
+                            <div class="form-group">
+                                <label for="image-upload">Sélectionnez une image :</label>
+                                <input type="file" id="image-upload" name="image" accept="image/*" required>
+                            </div>
+                            <button type="submit" class="button success">📤 Télécharger</button>
+                        </form>
+                        <div id="upload-status" class="status hidden"></div>
+                    </div>
 
-                <div class="section">
-                    <h2>Actions</h2>
-                    <button id="update-frame" class="button warning">🔄 Mettre à jour le cadre</button>
-                    <button id="calibrate-screen" class="button secondary">🔍 Calibrer l'écran</button>
-                    <div id="action-status" class="status hidden"></div>
+                    <div class="section">
+                        <h2>⚙️ Fonction d'affichage</h2>
+                        <form id="function-form">
+                            <div class="form-group">
+                                <label for="function-select">Sélectionnez la fonction à exécuter :</label>
+                                <select id="function-select" name="function">
+                                    <option value="DeviantArt">Deviant Art</option>
+                                    <option value="plex">Plex</option>
+                                    <option value="fixed">Image Fixe</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="button">💾 Enregistrer</button>
+                        </form>
+                        <div id="function-status" class="status hidden"></div>
+                    </div>
+
+                    <div class="section">
+                        <h2>⚡ Actions</h2>
+                        <button id="update-frame" class="button warning">🔄 Mettre à jour le cadre</button>
+                        <button id="calibrate-screen" class="button secondary">🔍 Calibrer l'écran</button>
+                        <div id="action-status" class="status hidden"></div>
+                    </div>
                 </div>
             </div>
 
@@ -333,7 +389,7 @@
                 <h1>🔧 Calibration de l'écran</h1>
                 
                 <div class="section">
-                    <h2>Instructions de calibration</h2>
+                    <h2>📋 Instructions de calibration</h2>
                     <p>Cette procédure va vous aider à vérifier et corriger l'orientation de votre écran e-Paper.</p>
                     <p>Une image spéciale va être affichée avec des repères visuels dans chaque coin :</p>
                     <ul>
@@ -345,20 +401,22 @@
                 </div>
 
                 <div class="section">
-                    <h2>Démarrer la calibration</h2>
+                    <h2>🚀 Démarrer la calibration</h2>
                     <button id="start-calibration" class="button warning">🔍 Démarrer la calibration</button>
                     <div id="calibration-status" class="status hidden"></div>
                 </div>
 
                 <div class="section">
-                    <h2>Ajuster l'orientation</h2>
+                    <h2>🔧 Ajuster l'orientation</h2>
                     <p>Si l'orientation n'est pas correcte, vous pouvez ajuster les paramètres dans le code source :</p>
                     <p>Modifiez le fichier <code>frame/epd7in3f.py</code> et changez la valeur de rotation :</p>
-                    <pre><code>// Valeurs possibles :
+                    <div class="token-display">
+<pre>// Valeurs possibles :
 image_temp = image.rotate(-90, expand=True)  // 90° sens anti-horaire
 image_temp = image.rotate(0, expand=True)    // Pas de rotation
 image_temp = image.rotate(90, expand=True)   // 90° sens horaire
-image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
+image_temp = image.rotate(180, expand=True)   // 180°</pre>
+                    </div>
                 </div>
             </div>
 
@@ -367,18 +425,21 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
                 <h1>⚙️ Paramètres</h1>
                 
                 <div class="section">
-                    <h2>Configuration de l'API</h2>
+                    <h2>🔑 Token API Actuel</h2>
                     <div class="form-group">
-                        <label for="api-token">Token API :</label>
-                        <input type="text" id="api-token" readonly>
-                        <button id="copy-token" class="button secondary">📋 Copier</button>
+                        <label>Votre token API est actuellement :</label>
+                        <div class="token-display" id="current-token-display">
+                            Aucun token configuré
+                        </div>
+                        <button id="copy-current-token" class="button secondary">📋 Copier le Token</button>
+                        <button id="refresh-token-display" class="button">🔄 Rafraîchir</button>
                     </div>
-                    <div id="token-status" class="status hidden"></div>
+                    <div id="current-token-status" class="status hidden"></div>
                 </div>
 
                 <div class="section">
-                    <h2>Gestion des tags (à venir)</h2>
-                    <p>Cette fonctionnalité sera disponible dans une prochaine version.</p>
+                    <h2>📊 Informations Système</h2>
+                    <p>Cette section affichera les informations système dans une future mise à jour.</p>
                 </div>
             </div>
         </main>
@@ -392,7 +453,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
         // État de l'application
         const appState = {
             currentPage: 'home',
-            apiToken: null,
+            apiToken: localStorage.getItem('frame_api_token') || null,
             darkMode: localStorage.getItem('darkMode') === 'true'
         };
 
@@ -404,45 +465,18 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
                 document.getElementById('toggle-mode').textContent = '☀️ Mode Clair';
             }
 
-            // Charger le token API
-            loadApiToken();
-
             // Attacher les écouteurs d'événements
             attachEventListeners();
 
             // Afficher la page d'accueil par défaut
             showPage('home');
+            
+            // Mettre à jour l'affichage du token
+            updateTokenDisplay();
+            
+            // Afficher ou masquer la section d'upload selon la présence du token
+            toggleUploadSection();
         });
-
-        // Charger le token API
-        async function loadApiToken() {
-            try {
-                const response = await fetch('/api/token', {
-                    headers: {
-                        'Authorization': `Bearer ${getStoredToken()}`
-                    }
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.success && data.api_token) {
-                        appState.apiToken = data.api_token;
-                        document.getElementById('api-token').value = data.api_token;
-                    }
-                }
-            } catch (error) {
-                console.error('Erreur lors du chargement du token API:', error);
-            }
-        }
-
-        // Récupérer le token stocké dans localStorage ou sessionStorage
-        function getStoredToken() {
-            return localStorage.getItem('api_token') || sessionStorage.getItem('api_token') || '';
-        }
-
-        // Stocker le token
-        function storeToken(token) {
-            localStorage.setItem('api_token', token);
-        }
 
         // Attacher les écouteurs d'événements
         function attachEventListeners() {
@@ -465,19 +499,32 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
             // Toggle mode sombre/clair
             document.getElementById('toggle-mode').addEventListener('click', toggleDarkMode);
 
-            // Formulaire de téléchargement d'image
-            document.getElementById('upload-form').addEventListener('submit', handleImageUpload);
+            // Gestion du token API
+            document.getElementById('save-token').addEventListener('click', handleSaveToken);
+            document.getElementById('clear-token').addEventListener('click', handleClearToken);
+            document.getElementById('copy-current-token').addEventListener('click', copyCurrentToken);
+            document.getElementById('refresh-token-display').addEventListener('click', updateTokenDisplay);
 
-            // Formulaire de fonction
-            document.getElementById('function-form').addEventListener('submit', handleFunctionSave);
+            // Formulaire de téléchargement d'image (seulement si token présent)
+            if (document.getElementById('upload-form')) {
+                document.getElementById('upload-form').addEventListener('submit', handleImageUpload);
+            }
 
-            // Boutons d'action
-            document.getElementById('update-frame').addEventListener('click', handleUpdateFrame);
-            document.getElementById('calibrate-screen').addEventListener('click', handleCalibrateScreen);
-            document.getElementById('start-calibration').addEventListener('click', handleStartCalibration);
+            // Formulaire de fonction (seulement si token présent)
+            if (document.getElementById('function-form')) {
+                document.getElementById('function-form').addEventListener('submit', handleFunctionSave);
+            }
 
-            // Copier le token
-            document.getElementById('copy-token').addEventListener('click', copyToken);
+            // Boutons d'action (seulement si token présent)
+            if (document.getElementById('update-frame')) {
+                document.getElementById('update-frame').addEventListener('click', handleUpdateFrame);
+            }
+            if (document.getElementById('calibrate-screen')) {
+                document.getElementById('calibrate-screen').addEventListener('click', handleCalibrateScreen);
+            }
+            if (document.getElementById('start-calibration')) {
+                document.getElementById('start-calibration').addEventListener('click', handleStartCalibration);
+            }
         }
 
         // Afficher une page
@@ -512,9 +559,85 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
             button.textContent = appState.darkMode ? '☀️ Mode Clair' : '🌙 Mode Sombre';
         }
 
+        // Gérer l'enregistrement du token
+        function handleSaveToken() {
+            const tokenInput = document.getElementById('manual-api-token');
+            const token = tokenInput.value.trim();
+            
+            if (!token) {
+                showMessage('token-input-status', 'Veuillez entrer un token API.', 'error');
+                return;
+            }
+
+            // Stocker le token
+            appState.apiToken = token;
+            localStorage.setItem('frame_api_token', token);
+            
+            // Effacer le champ d'entrée
+            tokenInput.value = '';
+            
+            // Mettre à jour l'affichage
+            updateTokenDisplay();
+            toggleUploadSection();
+            
+            showMessage('token-input-status', 'Token API enregistré avec succès !', 'success');
+        }
+
+        // Gérer l'effacement du token
+        function handleClearToken() {
+            // Effacer le token
+            appState.apiToken = null;
+            localStorage.removeItem('frame_api_token');
+            
+            // Mettre à jour l'affichage
+            updateTokenDisplay();
+            toggleUploadSection();
+            
+            showMessage('token-input-status', 'Token API effacé.', 'info');
+        }
+
+        // Mettre à jour l'affichage du token
+        function updateTokenDisplay() {
+            const displayElement = document.getElementById('current-token-display');
+            if (appState.apiToken) {
+                displayElement.textContent = appState.apiToken;
+            } else {
+                displayElement.textContent = 'Aucun token configuré';
+            }
+        }
+
+        // Afficher ou masquer la section d'upload selon la présence du token
+        function toggleUploadSection() {
+            const uploadSection = document.getElementById('upload-section');
+            if (appState.apiToken) {
+                uploadSection.classList.remove('hidden');
+            } else {
+                uploadSection.classList.add('hidden');
+            }
+        }
+
+        // Copier le token courant
+        function copyCurrentToken() {
+            if (!appState.apiToken) {
+                showMessage('current-token-status', 'Aucun token à copier.', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(appState.apiToken).then(() => {
+                showMessage('current-token-status', 'Token copié dans le presse-papiers !', 'success');
+            }).catch(err => {
+                showMessage('current-token-status', `Erreur lors de la copie: ${err}`, 'error');
+            });
+        }
+
         // Gérer le téléchargement d'image
         async function handleImageUpload(e) {
             e.preventDefault();
+            
+            if (!appState.apiToken) {
+                showMessage('upload-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                return;
+            }
             
             const fileInput = document.getElementById('image-upload');
             const file = fileInput.files[0];
@@ -553,6 +676,11 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
         async function handleFunctionSave(e) {
             e.preventDefault();
             
+            if (!appState.apiToken) {
+                showMessage('function-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                return;
+            }
+            
             const functionSelect = document.getElementById('function-select');
             const selectedFunction = functionSelect.value;
 
@@ -571,7 +699,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
                 if (response.ok && data.success) {
                     showMessage('function-status', 'Fonction enregistrée avec succès.', 'success');
                 } else {
-                    showMessage('function-status', data.error || 'Erreur lors de l\'enregistrement.', 'error');
+                    showMessage('function-status', data.error || 'Erreur lors de l'enregistrement.', 'error');
                 }
             } catch (error) {
                 showMessage('function-status', `Erreur réseau: ${error.message}`, 'error');
@@ -580,6 +708,11 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
 
         // Gérer la mise à jour du cadre
         async function handleUpdateFrame() {
+            if (!appState.apiToken) {
+                showMessage('action-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                return;
+            }
+            
             try {
                 const response = await fetch('/api/new', {
                     method: 'POST',
@@ -602,6 +735,11 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
 
         // Gérer la calibration de l'écran (bouton rapide)
         async function handleCalibrateScreen() {
+            if (!appState.apiToken) {
+                showMessage('action-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                return;
+            }
+            
             try {
                 const response = await fetch('/api/new', {
                     method: 'POST',
@@ -628,6 +766,11 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
 
         // Gérer le démarrage de la calibration
         async function handleStartCalibration() {
+            if (!appState.apiToken) {
+                showMessage('calibration-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                return;
+            }
+            
             try {
                 const response = await fetch('/api/new', {
                     method: 'POST',
@@ -650,32 +793,27 @@ image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
             }
         }
 
-        // Copier le token dans le presse-papiers
-        function copyToken() {
-            const tokenInput = document.getElementById('api-token');
-            tokenInput.select();
-            document.execCommand('copy');
-            
-            showMessage('token-status', 'Token copié dans le presse-papiers.', 'success');
-            
-            // Effacer le message après 3 secondes
-            setTimeout(() => {
-                hideMessage('token-status');
-            }, 3000);
-        }
-
         // Afficher un message
         function showMessage(elementId, message, type) {
             const element = document.getElementById(elementId);
-            element.textContent = message;
-            element.className = `status ${type}`;
-            element.classList.remove('hidden');
+            if (element) {
+                element.textContent = message;
+                element.className = `status ${type}`;
+                element.classList.remove('hidden');
+                
+                // Effacer automatiquement le message après 5 secondes
+                setTimeout(() => {
+                    element.classList.add('hidden');
+                }, 5000);
+            }
         }
 
         // Masquer un message
         function hideMessage(elementId) {
             const element = document.getElementById(elementId);
-            element.classList.add('hidden');
+            if (element) {
+                element.classList.add('hidden');
+            }
         }
     </script>
 </body>
