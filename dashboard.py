@@ -125,21 +125,35 @@ def update_bantags():
         json.dump(cleaned, f)
     return jsonify(success=True, message='Banned tags updated')
 
-@app.route('/api/new', methods=['GET', 'POST'])
+@app.route('/api/new', methods=['POST'])
 @require_auth
 def trigger_new():
-    if request.method == 'GET':
-        return "This endpoint only accepts POST requests. Use POST to trigger a new image update.", 405
+    """Déclenche le téléchargement et l'affichage d'une nouvelle image"""
+    # Vérifier s'il s'agit d'une calibration
+    data = request.get_json()
+    calibration_mode = data.get('calibration', False) if data else False
     
-    print("trigger_new called")
-    download()
-    return jsonify(success=True)
+    print(f"Triggering new image download, calibration_mode: {calibration_mode}")
+    from frame.download import download
+    result = download(calibration_mode=calibration_mode)
+    return jsonify(success=result)
 
-@app.route('/api/token', methods=['GET'])
+@app.route('/api/calibration', methods=['POST'])
 @require_auth
-def get_api_token():
-    """Retourne le token API actuel"""
-    return jsonify(success=True, api_token=API_TOKEN)
+def start_calibration():
+    """Démarre le processus de calibration de l'écran"""
+    try:
+        # Créer l'image de calibration
+        from frame.calibration import test_orientation
+        image = test_orientation()
+        
+        # Afficher l'image de calibration
+        from frame.display import display
+        display()
+        
+        return jsonify(success=True, message="Calibration started. Check your e-Paper display.")
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
 
 @app.route('/api/config', methods=['GET'])
 def get_client_config():
@@ -193,6 +207,23 @@ def _validate_words(payload, key):
     if len(set(lowered)) != len(lowered):
         return None, 'Duplicate tags'
     return {key: [{'name': n} for n in names]}, None
+
+@app.route('/api/calibration', methods=['POST'])
+@require_auth
+def start_calibration():
+    """Démarre le processus de calibration de l'écran"""
+    try:
+        # Créer l'image de calibration
+        from frame.calibration import test_orientation
+        image = test_orientation()
+        
+        # Afficher l'image de calibration
+        from frame.display import display
+        display()
+        
+        return jsonify(success=True, message="Calibration started. Check your e-Paper display.")
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

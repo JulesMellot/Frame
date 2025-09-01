@@ -13,8 +13,16 @@ except ImportError as e:
     EPD_AVAILABLE = False
     print(f"❌ Local EPD modules not available: {e}")
 
-# Definition of the display() command
-def display():
+def display(calibration_mode=False):
+    """
+    Affiche une image sur l'écran e-Paper
+    
+    Args:
+        calibration_mode (bool): Si True, affiche l'image de calibration
+    
+    Returns:
+        bool: True si l'affichage a réussi, False sinon
+    """
     print(f"=== Starting display function ===")
     print(f"EPD modules available: {EPD_AVAILABLE}")
     
@@ -37,12 +45,18 @@ def display():
         epd.Clear()
         print("✅ Screen cleared")
         
-        # Open the picture - chemin corrigé
-        image_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'OnWeb', 'img.png')
-        print(f"Looking for image at: {image_path}")
+        # Déterminer le chemin de l'image à afficher
+        if calibration_mode:
+            image_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'OnWeb', 'calibration.png')
+            print(f"Using calibration image: {image_path}")
+        else:
+            image_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'OnWeb', 'img.png')
+            print(f"Looking for image at: {image_path}")
         
+        # Vérifier si le fichier existe
         if not os.path.exists(image_path):
             print(f"❌ Image file not found: {image_path}")
+            epd.sleep()
             return False
             
         print("Loading image...")

@@ -67,6 +67,7 @@ else
 fi
 
 # Redémarrer le service
+systemctl restart frame.service
 echo "Update complete!"
 echo "Please restart the service with: sudo systemctl restart frame.service"
 echo "Or reboot the system for GPIO permission changes to take full effect: sudo reboot"

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Frame - Calibration</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+  </head>
+  <body>
+    <nav>
+      <ul>
+        <li><a href="index.html" data-i18n="home">Home</a></li>
+        <li><a href="tags.html" data-i18n="tags">Tag Authorized</a></li>
+        <li><a href="bantag.html" data-i18n="bantags">Forbidden Tag</a></li>
+        <li><a href="token.html" data-i18n="apiToken">API Token</a></li>
+      </ul>
+      <button class="toggle-mode-btn" onclick="toggleMode()" data-i18n="darkMode">Dark Mode</button>
+    </nav>
+    <main>
+      <h1 data-i18n="calibration">Calibration de l'écran</h1>
+      
+      <div class="calibration-container">
+        <h2 data-i18n="calibrationInstructions">Instructions de calibration</h2>
+        <p data-i18n="calibrationExplanation">
+          Cette procédure va vous aider à vérifier et corriger l'orientation de votre écran e-Paper.
+          Une image spéciale va être affichée avec des repères visuels dans chaque coin.
+        </p>
+        
+        <div class="instructions">
+          <h3 data-i18n="expectedOrientation">Orientation attendue :</h3>
+          <ul>
+            <li>⚫ <strong data-i18n="topLeft">Haut gauche</strong> : Carré noir</li>
+            <li>🔴 <strong data-i18n="topRight">Haut droite</strong> : Carré rouge</li>
+            <li>🔵 <strong data-i18n="bottomLeft">Bas gauche</strong> : Carré bleu</li>
+            <li>🟢 <strong data-i18n="bottomRight">Bas droite</strong> : Carré vert</li>
+          </ul>
+        </div>
+        
+        <div class="calibration-actions">
+          <button class="button" id="start-calibration" data-i18n="startCalibration">
+            Démarrer la calibration
+          </button>
+          
+          <div class="calibration-result" id="calibration-result" style="display: none;">
+            <h3 data-i18n="calibrationResult">Résultat de la calibration</h3>
+            <p id="result-message"></p>
+          </div>
+        </div>
+        
+        <div class="orientation-adjustment">
+          <h3 data-i18n="adjustOrientation">Ajuster l'orientation</h3>
+          <p data-i18n="orientationExplanation">
+            Si l'orientation n'est pas correcte, vous pouvez ajuster les paramètres dans le code source.
+            Modifiez le fichier <code>frame/epd7in3f.py</code> et changez la valeur de rotation.
+          </p>
+          
+          <div class="code-example">
+            <pre><code># Rotation actuelle
+image_temp = image.rotate(-90, expand=True)
+
+# Valeurs possibles :
+# 0 : Pas de rotation
+# -90 : Rotation de 90° dans le sens inverse des aiguilles d'une montre
+# 90 : Rotation de 90° dans le sens des aiguilles d'une montre
+# 180 : Rotation de 180°</code></pre>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+    <script src="i18n.js"></script>
+    <script src="client-config.js"></script>
+    <script src="app.js"></script>
+    <script>
+      document.getElementById('start-calibration').addEventListener('click', function() {
+        // Démarrer la calibration
+        fetch('/api/calibration', {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN,
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.success) {
+            Toastify({
+              text: data.message || t('calibrationStarted'),
+              duration: 5000,
+              gravity: "top",
+              close: true,
+              position: "right"
+            }).showToast();
+            
+            // Afficher le résultat
+            document.getElementById('result-message').textContent = t('checkDisplay');
+            document.getElementById('calibration-result').style.display = 'block';
+          } else {
+            Toastify({
+              text: data.error || t('calibrationFailed'),
+              duration: 5000,
+              gravity: "top",
+              close: true,
+              position: "right"
+            }).showToast();
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          Toastify({
+            text: t('calibrationFailed') + ': ' + error.message,
+            duration: 5000,
+            gravity: "top",
+            close: true,
+            position: "right"
+          }).showToast();
+        });
+      });
+      
+      // Traductions supplémentaires
+      function t(key) {
+        const translations = {
+          'calibration': 'Calibration',
+          'calibrationInstructions': 'Instructions de calibration',
+          'calibrationExplanation': "Cette procédure va vous aider à vérifier et corriger l'orientation de votre écran e-Paper. Une image spéciale va être affichée avec des repères visuels dans chaque coin.",
+          'expectedOrientation': 'Orientation attendue :',
+          'topLeft': 'Haut gauche',
+          'topRight': 'Haut droite',
+          'bottomLeft': 'Bas gauche',
+          'bottomRight': 'Bas droite',
+          'startCalibration': 'Démarrer la calibration',
+          'calibrationResult': 'Résultat de la calibration',
+          'calibrationStarted': 'Calibration démarrée',
+          'checkDisplay': "Vérifiez votre écran e-Paper. L'image de calibration devrait s'afficher.",
+          'calibrationFailed': 'Échec de la calibration',
+          'adjustOrientation': "Ajuster l'orientation",
+          'orientationExplanation': "Si l'orientation n'est pas correcte, vous pouvez ajuster les paramètres dans le code source. Modifiez le fichier frame/epd7in3f.py et changez la valeur de rotation."
+        };
+        
+        return translations[key] || key;
+      }
+    </script>
+  </body>
+</html>

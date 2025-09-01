@@ -11,8 +11,31 @@ from . import fixed_download  # noqa: F401
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 WEB_DIR = os.path.join(BASE_DIR, "OnWeb")
 
-def download():
+def download(calibration_mode=False):
+    """
+    Télécharge et affiche une image
+    
+    Args:
+        calibration_mode (bool): Si True, démarre le mode calibration
+    
+    Returns:
+        bool: True si le téléchargement et l'affichage ont réussi, False sinon
+    """
     print("=== Starting download function ===")
+    
+    # Si on est en mode calibration, créer et afficher l'image de calibration
+    if calibration_mode:
+        print("Calibration mode activated")
+        try:
+            from .calibration import test_orientation
+            test_orientation()  # Crée l'image de calibration
+            return display(calibration_mode=True)  # Affiche l'image de calibration
+        except Exception as e:
+            print(f"❌ Error during calibration: {e}")
+            import traceback
+            traceback.print_exc()
+            return False
+    
     destination = os.path.join(WEB_DIR, "function.json")
     print(f"Looking for function file: {destination}")
 
