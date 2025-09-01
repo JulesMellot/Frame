@@ -199,14 +199,14 @@ class EPD:
 
     def getbuffer(self, image):
         # Create a pallette with the 7 colors supported by the panel
-        # Color mapping according to Waveshare documentation:
-        # Black: 0x000000 (0b0000)
-        # White: 0xffffff (0b0001) 
-        # Green: 0x00ff00 (0b0010)
-        # Blue: 0xff0000 (0b0011) - Note: BGR format in hardware
-        # Red: 0x0000ff (0b0100) - Note: BGR format in hardware
-        # Yellow: 0x00ffff (0b0101) - Note: BGR format in hardware
-        # Orange: 0x0080ff (0b0110) - Note: BGR format in hardware
+        # According to Waveshare documentation:
+        # Black: 0b0000 (0x0)
+        # White: 0b0001 (0x1)
+        # Green: 0b0010 (0x2)
+        # Blue: 0b0011 (0x3)
+        # Red: 0b0100 (0x4)
+        # Yellow: 0b0101 (0x5)
+        # Orange: 0b0110 (0x6)
         pal_image = Image.new("P", (1,1))
         pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
 
@@ -215,27 +215,36 @@ class EPD:
         if(imwidth == self.width and imheight == self.height):
             image_temp = image
         elif(imwidth == self.height and imheight == self.width):
-            # Rotate 90 degrees clockwise
+            # Rotate 90 degrees counter-clockwise (correct orientation for e-Paper)
             image_temp = image.rotate(-90, expand=True)
         else:
-            # Redimensionner l'image pour qu'elle corresponde à la taille de l'écran
+            # Resize image to match screen dimensions with high quality resampling
             print(f"Resizing image from {imwidth}x{imheight} to {self.width}x{self.height}")
             image_temp = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
 
-        # Apply color enhancement before quantization
+        # Apply color enhancement for better display on e-Paper
         from PIL import ImageEnhance
-        # Increase saturation and brightness for better color display
+        # Enhance saturation to make colors more vivid on e-Paper display
         converter_color = ImageEnhance.Color(image_temp)
+        # Enhance brightness for better visibility
         converter_bri = ImageEnhance.Brightness(image_temp)
-        image_temp = converter_color.enhance(2.0)  # Increase saturation
-        image_temp = converter_bri.enhance(1.2)   # Increase brightness
+        # Enhance contrast for sharper image
+        converter_con = ImageEnhance.Contrast(image_temp)
+        
+        image_temp = converter_color.enhance(2.1)   # Increase saturation for vivid colors
+        image_temp = converter_bri.enhance(1.3)    # Increase brightness for better visibility
+        image_temp = converter_con.enhance(1.2)    # Increase contrast for sharper image
 
-        # Convert the source image to the 7 colors, dithering if needed
-        image_7color = image_temp.convert("RGB").quantize(palette=pal_image)
+        # Convert the source image to the 7 colors with dithering
+        # Using Floyd-Steinberg dithering as recommended by Waveshare
+        image_7color = image_temp.convert("RGB").quantize(
+            palette=pal_image, 
+            dither=Image.Dither.FLOYDSTEINBERG
+        )
         buf_7color = bytearray(image_7color.tobytes('raw'))
 
-        # PIL does not support 4 bit color, so pack the 4 bits of color
-        # into a single byte to transfer to the panel
+        # Pack 4-bit color values into bytes
+        # Two pixels per byte as per Waveshare specification
         buf = [0x00] * int(self.width * self.height / 2)
         idx = 0
         for i in range(0, len(buf_7color), 2):
