@@ -1,144 +1,682 @@
 <!DOCTYPE html>
-<html>
-  <head>
+<html lang="fr">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Frame</title>
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-  </head>
-  <body>
-    <nav>
-      <ul>
-        <li><a href="index.html" data-i18n="home">Home</a></li>
-        <li><a href="tags.html" data-i18n="tags">Tag Authorized</a></li>
-        <li><a href="bantag.html" data-i18n="bantags">Forbidden Tag</a></li>
-        <li><a href="token.html" data-i18n="apiToken">API Token</a></li>
-        <li><a href="calibration.html" data-i18n="calibration">Calibration</a></li>
-      </ul>
-      <button class="toggle-mode-btn" onclick="toggleMode()" data-i18n="darkMode">Dark Mode</button>
-    </nav>
-    <main>
-      <h1 data-i18n="frameAdmin">Frame Admin 🖼️</h1>
-      <form enctype="multipart/form-data" id="img-form" method="POST">
-      <div class="image-upload-container">
-        <label for="image-upload" data-i18n="uploadImage">Upload image</label>
-        <input class="button" type="file" name="image" accept="image/*">
-        <button class="button" type="submit" data-i18n="updateImage">Update Image</button>
-      </div>
-      </form>
-      <div class="update-container">
-      <form id="json-form">
-        <label for="function-select" data-i18n="selectFunction">Select the function to perform :</label>
-        <select name="function" id="function-select">
-          <option value="DeviantArt">Deviant Art</option>
-          <option value="plex">Plex</option>
-          <option value="fixed">Fixed</option>
-        </select>
-        <button class="button" data-i18n="updateFunction">Update function</button>
-      </form>
-      <button class="button" id="new" data-i18n="updateFrame">Update The Frame</button>
-      <button class="button" id="calibrate" data-i18n="calibrateScreen">Calibrate Screen</button>
-      </div>
-    </main>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
-    <script src="i18n.js"></script>
-    <script src="client-config.js"></script>
-    <script src="app.js"></script>
-    <script src="function.js"></script>
+    <title>Frame - Administration</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        body.dark-mode {
+            background-color: #1a1a1a;
+            color: #f0f0f0;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background-color: #596275;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode header {
+            background-color: #2c3e50;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 15px;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .nav-links a:hover {
+            background-color: rgba(255,255,255,0.2);
+        }
+
+        .toggle-mode-btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .toggle-mode-btn:hover {
+            background-color: #2980b9;
+        }
+
+        main {
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        body.dark-mode main {
+            background-color: #2c2c2c;
+        }
+
+        h1 {
+            color: #596275;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        body.dark-mode h1 {
+            color: #3498db;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #f8f9fa;
+        }
+
+        body.dark-mode .section {
+            background-color: #3a3a3a;
+        }
+
+        h2 {
+            color: #596275;
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode h2 {
+            color: #3498db;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="password"],
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        body.dark-mode input[type="file"],
+        body.dark-mode input[type="text"],
+        body.dark-mode input[type="password"],
+        body.dark-mode select {
+            background-color: #404040;
+            color: white;
+            border-color: #555;
+        }
+
+        .button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+
+        .button:hover {
+            background-color: #2980b9;
+        }
+
+        .button.secondary {
+            background-color: #95a5a6;
+        }
+
+        .button.secondary:hover {
+            background-color: #7f8c8d;
+        }
+
+        .button.success {
+            background-color: #2ecc71;
+        }
+
+        .button.success:hover {
+            background-color: #27ae60;
+        }
+
+        .button.warning {
+            background-color: #f39c12;
+        }
+
+        .button.warning:hover {
+            background-color: #d35400;
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: 4px;
+            margin: 15px 0;
+        }
+
+        .status.success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .status.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        body.dark-mode .status.success {
+            background-color: #1e3a22;
+            color: #a3e6a7;
+            border-color: #2d5a33;
+        }
+
+        body.dark-mode .status.error {
+            background-color: #4a1515;
+            color: #f8d7da;
+            border-color: #721c24;
+        }
+
+        body.dark-mode .status.info {
+            background-color: #153e45;
+            color: #a3e6f7;
+            border-color: #1f5d66;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            padding: 20px;
+            color: #7f8c8d;
+            font-size: 14px;
+        }
+
+        body.dark-mode footer {
+            color: #95a5a6;
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .nav-links {
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+            
+            main {
+                padding: 15px;
+            }
+            
+            .button {
+                width: 100%;
+                margin-right: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <nav>
+                <div class="nav-links">
+                    <a href="#" id="nav-home" class="active">🏠 Accueil</a>
+                    <a href="#" id="nav-calibration">🔧 Calibration</a>
+                    <a href="#" id="nav-settings">⚙️ Paramètres</a>
+                </div>
+                <button class="toggle-mode-btn" id="toggle-mode">🌙 Mode Sombre</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Page d'accueil -->
+            <div id="page-home">
+                <h1>Frame Admin 🖼️</h1>
+                
+                <div class="section">
+                    <h2>Télécharger une image</h2>
+                    <form id="upload-form" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label for="image-upload">Sélectionnez une image :</label>
+                            <input type="file" id="image-upload" name="image" accept="image/*" required>
+                        </div>
+                        <button type="submit" class="button success">📤 Télécharger</button>
+                    </form>
+                    <div id="upload-status" class="status hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Fonction d'affichage</h2>
+                    <form id="function-form">
+                        <div class="form-group">
+                            <label for="function-select">Sélectionnez la fonction à exécuter :</label>
+                            <select id="function-select" name="function">
+                                <option value="DeviantArt">Deviant Art</option>
+                                <option value="plex">Plex</option>
+                                <option value="fixed">Image Fixe</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="button">💾 Enregistrer</button>
+                    </form>
+                    <div id="function-status" class="status hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Actions</h2>
+                    <button id="update-frame" class="button warning">🔄 Mettre à jour le cadre</button>
+                    <button id="calibrate-screen" class="button secondary">🔍 Calibrer l'écran</button>
+                    <div id="action-status" class="status hidden"></div>
+                </div>
+            </div>
+
+            <!-- Page de calibration -->
+            <div id="page-calibration" class="hidden">
+                <h1>🔧 Calibration de l'écran</h1>
+                
+                <div class="section">
+                    <h2>Instructions de calibration</h2>
+                    <p>Cette procédure va vous aider à vérifier et corriger l'orientation de votre écran e-Paper.</p>
+                    <p>Une image spéciale va être affichée avec des repères visuels dans chaque coin :</p>
+                    <ul>
+                        <li>⚫ <strong>Haut gauche</strong> : Carré noir</li>
+                        <li>🔴 <strong>Haut droite</strong> : Carré rouge</li>
+                        <li>🔵 <strong>Bas gauche</strong> : Carré bleu</li>
+                        <li>🟢 <strong>Bas droite</strong> : Carré vert</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <h2>Démarrer la calibration</h2>
+                    <button id="start-calibration" class="button warning">🔍 Démarrer la calibration</button>
+                    <div id="calibration-status" class="status hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Ajuster l'orientation</h2>
+                    <p>Si l'orientation n'est pas correcte, vous pouvez ajuster les paramètres dans le code source :</p>
+                    <p>Modifiez le fichier <code>frame/epd7in3f.py</code> et changez la valeur de rotation :</p>
+                    <pre><code>// Valeurs possibles :
+image_temp = image.rotate(-90, expand=True)  // 90° sens anti-horaire
+image_temp = image.rotate(0, expand=True)    // Pas de rotation
+image_temp = image.rotate(90, expand=True)   // 90° sens horaire
+image_temp = image.rotate(180, expand=True)   // 180°</code></pre>
+                </div>
+            </div>
+
+            <!-- Page des paramètres -->
+            <div id="page-settings" class="hidden">
+                <h1>⚙️ Paramètres</h1>
+                
+                <div class="section">
+                    <h2>Configuration de l'API</h2>
+                    <div class="form-group">
+                        <label for="api-token">Token API :</label>
+                        <input type="text" id="api-token" readonly>
+                        <button id="copy-token" class="button secondary">📋 Copier</button>
+                    </div>
+                    <div id="token-status" class="status hidden"></div>
+                </div>
+
+                <div class="section">
+                    <h2>Gestion des tags (à venir)</h2>
+                    <p>Cette fonctionnalité sera disponible dans une prochaine version.</p>
+                </div>
+            </div>
+        </main>
+
+        <footer>
+            <p>Frame Admin Panel • © 2025</p>
+        </footer>
+    </div>
+
     <script>
-      const imgform = document.getElementById('img-form');
-      imgform.addEventListener('submit', (event) => {
-          event.preventDefault();
-          const fileInput = document.querySelector('input[type="file"]');
-          const file = fileInput.files[0];
-          const formData = new FormData();
-          formData.append('image', file);
-          const xhr = new XMLHttpRequest();
-          xhr.open('POST', 'api/upload');
-          xhr.setRequestHeader('Authorization', 'Bearer ' + window.FrameConfig.API_TOKEN);
-          xhr.onload = () => {
-              if (xhr.status === 200) {
-                Toastify({
-                text: xhr.responseText,
-                duration: 3000, 
-                gravity: "top", 
-                close: "true",
-                position: "right"
-              }).showToast();       
-              } else {
-                  console.error(xhr.statusText);
-                  Toastify({
-                    text: xhr.statusText,
-                    duration: 3000, 
-                    gravity: "top", 
-                    close: "true",
-                    position: "right"
-                  }).showToast();   
-              }
-          };
-          xhr.send(formData);
-      });
+        // État de l'application
+        const appState = {
+            currentPage: 'home',
+            apiToken: null,
+            darkMode: localStorage.getItem('darkMode') === 'true'
+        };
 
-      const sendBtnDeviant = document.getElementById('new');
-      sendBtnDeviant.addEventListener('click', () => {
-              fetch('api/new', {
-              method: 'POST',
-              headers: {
-                'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN
-              }
-              })
-              Toastify({
-                text: t('frameUpdating'),
-                duration: 3000, 
-                gravity: "top", 
-                close: "true",
-                position: "right"
-              }).showToast();       
-          });
-          
-      const calibrateBtn = document.getElementById('calibrate');
-      calibrateBtn.addEventListener('click', () => {
-        fetch('api/new', {
-          method: 'POST',
-          headers: {
-            'Authorization': 'Bearer ' + window.FrameConfig.API_TOKEN,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({calibration: true})
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.success) {
-            Toastify({
-              text: t('calibrationStarted'),
-              duration: 3000,
-              gravity: "top",
-              close: "true",
-              position: "right"
-            }).showToast();
-          } else {
-            Toastify({
-              text: t('calibrationFailed'),
-              duration: 3000,
-              gravity: "top",
-              close: "true",
-              position: "right"
-            }).showToast();
-          }
-        })
-        .catch(error => {
-          console.error('Error:', error);
-          Toastify({
-            text: t('calibrationFailed') + ': ' + error.message,
-            duration: 3000,
-            gravity: "top",
-            close: "true",
-            position: "right"
-          }).showToast();
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            // Appliquer le mode sombre si nécessaire
+            if (appState.darkMode) {
+                document.body.classList.add('dark-mode');
+                document.getElementById('toggle-mode').textContent = '☀️ Mode Clair';
+            }
+
+            // Charger le token API
+            loadApiToken();
+
+            // Attacher les écouteurs d'événements
+            attachEventListeners();
+
+            // Afficher la page d'accueil par défaut
+            showPage('home');
         });
-      });
-     </script>
 
-  </body>
+        // Charger le token API
+        async function loadApiToken() {
+            try {
+                const response = await fetch('/api/token', {
+                    headers: {
+                        'Authorization': `Bearer ${getStoredToken()}`
+                    }
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success && data.api_token) {
+                        appState.apiToken = data.api_token;
+                        document.getElementById('api-token').value = data.api_token;
+                    }
+                }
+            } catch (error) {
+                console.error('Erreur lors du chargement du token API:', error);
+            }
+        }
+
+        // Récupérer le token stocké dans localStorage ou sessionStorage
+        function getStoredToken() {
+            return localStorage.getItem('api_token') || sessionStorage.getItem('api_token') || '';
+        }
+
+        // Stocker le token
+        function storeToken(token) {
+            localStorage.setItem('api_token', token);
+        }
+
+        // Attacher les écouteurs d'événements
+        function attachEventListeners() {
+            // Navigation
+            document.getElementById('nav-home').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('home');
+            });
+
+            document.getElementById('nav-calibration').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('calibration');
+            });
+
+            document.getElementById('nav-settings').addEventListener('click', (e) => {
+                e.preventDefault();
+                showPage('settings');
+            });
+
+            // Toggle mode sombre/clair
+            document.getElementById('toggle-mode').addEventListener('click', toggleDarkMode);
+
+            // Formulaire de téléchargement d'image
+            document.getElementById('upload-form').addEventListener('submit', handleImageUpload);
+
+            // Formulaire de fonction
+            document.getElementById('function-form').addEventListener('submit', handleFunctionSave);
+
+            // Boutons d'action
+            document.getElementById('update-frame').addEventListener('click', handleUpdateFrame);
+            document.getElementById('calibrate-screen').addEventListener('click', handleCalibrateScreen);
+            document.getElementById('start-calibration').addEventListener('click', handleStartCalibration);
+
+            // Copier le token
+            document.getElementById('copy-token').addEventListener('click', copyToken);
+        }
+
+        // Afficher une page
+        function showPage(pageId) {
+            // Masquer toutes les pages
+            document.querySelectorAll('[id^="page-"]').forEach(page => {
+                page.classList.add('hidden');
+            });
+
+            // Afficher la page demandée
+            document.getElementById(`page-${pageId}`).classList.remove('hidden');
+
+            // Mettre à jour l'état
+            appState.currentPage = pageId;
+
+            // Mettre à jour la navigation active
+            document.querySelectorAll('.nav-links a').forEach(link => {
+                link.classList.remove('active');
+            });
+            document.getElementById(`nav-${pageId}`).classList.add('active');
+        }
+
+        // Basculer le mode sombre/clair
+        function toggleDarkMode() {
+            const body = document.body;
+            const button = document.getElementById('toggle-mode');
+            
+            body.classList.toggle('dark-mode');
+            appState.darkMode = body.classList.contains('dark-mode');
+            localStorage.setItem('darkMode', appState.darkMode);
+            
+            button.textContent = appState.darkMode ? '☀️ Mode Clair' : '🌙 Mode Sombre';
+        }
+
+        // Gérer le téléchargement d'image
+        async function handleImageUpload(e) {
+            e.preventDefault();
+            
+            const fileInput = document.getElementById('image-upload');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showMessage('upload-status', 'Veuillez sélectionner une image.', 'error');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/api/upload', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${appState.apiToken}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage('upload-status', 'Image téléchargée avec succès.', 'success');
+                    fileInput.value = ''; // Réinitialiser le champ
+                } else {
+                    showMessage('upload-status', data.error || 'Erreur lors du téléchargement.', 'error');
+                }
+            } catch (error) {
+                showMessage('upload-status', `Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        // Gérer l'enregistrement de la fonction
+        async function handleFunctionSave(e) {
+            e.preventDefault();
+            
+            const functionSelect = document.getElementById('function-select');
+            const selectedFunction = functionSelect.value;
+
+            try {
+                const response = await fetch('/api/function', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${appState.apiToken}`
+                    },
+                    body: JSON.stringify({ function: selectedFunction })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage('function-status', 'Fonction enregistrée avec succès.', 'success');
+                } else {
+                    showMessage('function-status', data.error || 'Erreur lors de l\'enregistrement.', 'error');
+                }
+            } catch (error) {
+                showMessage('function-status', `Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        // Gérer la mise à jour du cadre
+        async function handleUpdateFrame() {
+            try {
+                const response = await fetch('/api/new', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${appState.apiToken}`
+                    }
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage('action-status', 'Cadre mis à jour avec succès.', 'success');
+                } else {
+                    showMessage('action-status', data.error || 'Erreur lors de la mise à jour.', 'error');
+                }
+            } catch (error) {
+                showMessage('action-status', `Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        // Gérer la calibration de l'écran (bouton rapide)
+        async function handleCalibrateScreen() {
+            try {
+                const response = await fetch('/api/new', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${appState.apiToken}`
+                    },
+                    body: JSON.stringify({ calibration: true })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage('action-status', 'Calibration démarrée. Vérifiez votre écran e-Paper.', 'success');
+                    // Passer à la page de calibration
+                    showPage('calibration');
+                } else {
+                    showMessage('action-status', data.error || 'Erreur lors du démarrage de la calibration.', 'error');
+                }
+            } catch (error) {
+                showMessage('action-status', `Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        // Gérer le démarrage de la calibration
+        async function handleStartCalibration() {
+            try {
+                const response = await fetch('/api/new', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${appState.apiToken}`
+                    },
+                    body: JSON.stringify({ calibration: true })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok && data.success) {
+                    showMessage('calibration-status', 'Calibration démarrée. Vérifiez votre écran e-Paper.', 'success');
+                } else {
+                    showMessage('calibration-status', data.error || 'Erreur lors du démarrage de la calibration.', 'error');
+                }
+            } catch (error) {
+                showMessage('calibration-status', `Erreur réseau: ${error.message}`, 'error');
+            }
+        }
+
+        // Copier le token dans le presse-papiers
+        function copyToken() {
+            const tokenInput = document.getElementById('api-token');
+            tokenInput.select();
+            document.execCommand('copy');
+            
+            showMessage('token-status', 'Token copié dans le presse-papiers.', 'success');
+            
+            // Effacer le message après 3 secondes
+            setTimeout(() => {
+                hideMessage('token-status');
+            }, 3000);
+        }
+
+        // Afficher un message
+        function showMessage(elementId, message, type) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.className = `status ${type}`;
+            element.classList.remove('hidden');
+        }
+
+        // Masquer un message
+        function hideMessage(elementId) {
+            const element = document.getElementById(elementId);
+            element.classList.add('hidden');
+        }
+    </script>
+</body>
 </html>
