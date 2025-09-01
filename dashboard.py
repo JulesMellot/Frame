@@ -103,6 +103,55 @@ def update_function():
         json.dump(data, f)
     return jsonify(success=True)
 
+@app.route('/api/rotation', methods=['GET'])
+@require_auth
+def get_rotation():
+    """Retourne la rotation actuelle"""
+    import os
+    import json
+    
+    rotation_file = os.path.join(WEB_DIR, 'rotation.json')
+    try:
+        if os.path.exists(rotation_file):
+            with open(rotation_file, 'r') as f:
+                config = json.load(f)
+                rotation = config.get('rotation', 0)
+        else:
+            rotation = 0
+            
+        return jsonify(success=True, rotation=rotation)
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
+
+@app.route('/api/rotation', methods=['POST'])
+@require_auth
+def set_rotation():
+    """Définit la rotation"""
+    import os
+    import json
+    
+    data = request.get_json()
+    if data is None or 'rotation' not in data:
+        return jsonify(success=False, error="Rotation value required"), 400
+        
+    rotation = data['rotation']
+    
+    # Valider la rotation
+    valid_rotations = [0, 90, 180, 270, -90]
+    if rotation not in valid_rotations:
+        return jsonify(success=False, error="Invalid rotation value"), 400
+    
+    try:
+        rotation_file = os.path.join(WEB_DIR, 'rotation.json')
+        config = {'rotation': rotation}
+        
+        with open(rotation_file, 'w') as f:
+            json.dump(config, f)
+            
+        return jsonify(success=True, rotation=rotation)
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
+
 @app.route('/api/tags', methods=['POST'])
 @require_auth
 def update_tags():

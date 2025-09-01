@@ -212,28 +212,34 @@ class EPD:
 
         # Check if we need to rotate the image
         imwidth, imheight = image.size
-        if(imwidth == self.width and imheight == self.height):
-            image_temp = image
-        elif(imwidth == self.height and imheight == self.width):
-            # Rotate 90 degrees counter-clockwise (correct orientation for e-Paper)
-            image_temp = image.rotate(180, expand=True)
-        else:
-            # Resize image to match screen dimensions with high quality resampling
-            print(f"Resizing image from {imwidth}x{imheight} to {self.width}x{self.height}")
-            image_temp = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
-
-        # Apply color enhancement for better display on e-Paper
-        from PIL import ImageEnhance
-        # Enhance saturation to make colors more vivid on e-Paper display
-        converter_color = ImageEnhance.Color(image_temp)
-        # Enhance brightness for better visibility
-        converter_bri = ImageEnhance.Brightness(image_temp)
-        # Enhance contrast for sharper image
-        converter_con = ImageEnhance.Contrast(image_temp)
+        print(f"Original image dimensions: {imwidth}x{imheight}")
+        print(f"Screen dimensions: {self.width}x{self.height}")
         
-        image_temp = converter_color.enhance(2.1)   # Increase saturation for vivid colors
-        image_temp = converter_bri.enhance(1.3)    # Increase brightness for better visibility
-        image_temp = converter_con.enhance(1.2)    # Increase contrast for sharper image
+        # Always resize to screen dimensions first
+        if imwidth != self.width or imheight != self.height:
+            print(f"Resizing image from {imwidth}x{imheight} to {self.width}x{self.height}")
+            image = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
+            imwidth, imheight = self.width, self.height
+
+        # Apply color enhancement before quantization
+        from PIL import ImageEnhance
+        # Increase saturation and brightness for better color display
+        converter_color = ImageEnhance.Color(image)
+        converter_bri = ImageEnhance.Brightness(image)
+        converter_con = ImageEnhance.Contrast(image)
+        
+        image = converter_color.enhance(2.1)   # Increase saturation for vivid colors
+        image = converter_bri.enhance(1.3)    # Increase brightness for better visibility
+        image = converter_con.enhance(1.2)    # Increase contrast for sharper image
+
+        # Check rotation setting from file or use default (0)
+        rotation = self.get_rotation_setting()
+        print(f"Applying rotation: {rotation} degrees")
+        
+        if rotation != 0:
+            image = image.rotate(rotation, expand=True)
+
+        image_temp = image
 
         # Convert the source image to the 7 colors with dithering
         # Using Floyd-Steinberg dithering as recommended by Waveshare
@@ -271,5 +277,28 @@ class EPD:
         
         epdconfig.delay_ms(2000)
         epdconfig.module_exit()
+        
+    def get_rotation_setting(self):
+        """Get rotation setting from configuration file or return default (0)"""
+        import os
+        import json
+        
+        config_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'OnWeb', 'rotation.json')
+        try:
+            if os.path.exists(config_file):
+                with open(config_file, 'r') as f:
+                    config = json.load(f)
+                    return config.get('rotation', 0)
+            else:
+                # Create default configuration
+                default_config = {'rotation': 0}
+                os.makedirs(os.path.dirname(config_file), exist_ok=True)
+                with open(config_file, 'w') as f:
+                    json.dump(default_config, f)
+                return 0
+        except Exception as e:
+            print(f"Error reading rotation setting: {e}")
+            return 0
+            
 ### END OF FILE ###
 
