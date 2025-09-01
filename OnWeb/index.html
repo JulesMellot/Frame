@@ -717,8 +717,10 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
                 const response = await fetch('/api/new', {
                     method: 'POST',
                     headers: {
+                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${appState.apiToken}`
-                    }
+                    },
+                    body: JSON.stringify({})
                 });
 
                 const data = await response.json();
