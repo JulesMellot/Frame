@@ -216,7 +216,7 @@ class EPD:
             image_temp = image
         elif(imwidth == self.height and imheight == self.width):
             # Rotate 90 degrees counter-clockwise (correct orientation for e-Paper)
-            image_temp = image.rotate(-90, expand=True)
+            image_temp = image.rotate(180, expand=True)
         else:
             # Resize image to match screen dimensions with high quality resampling
             print(f"Resizing image from {imwidth}x{imheight} to {self.width}x{self.height}")
