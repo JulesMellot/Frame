@@ -1,24 +1,26 @@
 import os
 from PIL import Image, ImageEnhance
 
-# Importation conditionnelle du module EPD
+# Importation des modules EPD locaux
 try:
-    from waveshare_epd import epd7in3f
+    from . import epd7in3f
+    from . import epdconfig
     EPD_AVAILABLE = True
-    print("✅ EPD module successfully imported")
+    print("✅ Local EPD modules successfully imported")
 except ImportError as e:
     epd7in3f = None
+    epdconfig = None
     EPD_AVAILABLE = False
-    print(f"❌ EPD module not available: {e}")
+    print(f"❌ Local EPD modules not available: {e}")
 
 # Definition of the display() command
 def display():
     print(f"=== Starting display function ===")
-    print(f"EPD module available: {EPD_AVAILABLE}")
+    print(f"EPD modules available: {EPD_AVAILABLE}")
     
-    # Si le module EPD n'est pas disponible, on affiche un message et on retourne True
+    # Si les modules EPD ne sont pas disponibles, on affiche un message et on retourne True
     if not EPD_AVAILABLE:
-        print("⚠️  EPD module not available, skipping display")
+        print("⚠️  EPD modules not available, skipping display")
         return True
     
     try:
