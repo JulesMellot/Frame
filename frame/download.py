@@ -38,16 +38,28 @@ def download():
     print(f"✅ Plugin found: {function_name}")
     
     print("Executing plugin...")
-    plugin_result = plugin()
-    print(f"Plugin execution result: {plugin_result}")
-    
-    if plugin_result:
-        print("Plugin executed successfully, calling display()")
-        display_result = display()
-        print(f"Display function result: {display_result}")
-        return True
-    else:
-        print("❌ Plugin execution failed")
+    try:
+        plugin_result = plugin()
+        print(f"Plugin execution result: {plugin_result}")
+        
+        if plugin_result:
+            print("Plugin executed successfully, calling display()")
+            try:
+                display_result = display()
+                print(f"Display function result: {display_result}")
+                return True
+            except Exception as e:
+                print(f"❌ Error in display function: {e}")
+                import traceback
+                traceback.print_exc()
+                return False
+        else:
+            print("❌ Plugin execution failed or returned False")
+            return False
+    except Exception as e:
+        print(f"❌ Error during plugin execution: {e}")
+        import traceback
+        traceback.print_exc()
         return False
 
 
