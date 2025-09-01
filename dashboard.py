@@ -208,22 +208,5 @@ def _validate_words(payload, key):
         return None, 'Duplicate tags'
     return {key: [{'name': n} for n in names]}, None
 
-@app.route('/api/calibration', methods=['POST'])
-@require_auth
-def start_calibration():
-    """Démarre le processus de calibration de l'écran"""
-    try:
-        # Créer l'image de calibration
-        from frame.calibration import test_orientation
-        image = test_orientation()
-        
-        # Afficher l'image de calibration
-        from frame.display import display
-        display()
-        
-        return jsonify(success=True, message="Calibration started. Check your e-Paper display.")
-    except Exception as e:
-        return jsonify(success=False, error=str(e)), 500
-
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
