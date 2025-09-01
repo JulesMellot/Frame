@@ -221,6 +221,13 @@ class EPD:
             image = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
             imwidth, imheight = self.width, self.height
 
+        # Check rotation setting from file or use default (0)
+        rotation = self.get_rotation_setting()
+        print(f"Applying rotation: {rotation} degrees")
+        
+        if rotation != 0:
+            image = image.rotate(rotation, expand=True)
+
         # Apply color enhancement for better display on e-Paper
         from PIL import ImageEnhance
         # Get enhancement settings from configuration file or use defaults
@@ -228,22 +235,15 @@ class EPD:
         print(f"Applying enhancement settings: {enhancement_settings}")
         
         # Enhance saturation to make colors more vivid on e-Paper display
-        converter_color = ImageEnhance.Color(image_temp)
+        converter_color = ImageEnhance.Color(image)
         # Enhance brightness for better visibility
-        converter_bri = ImageEnhance.Brightness(image_temp)
+        converter_bri = ImageEnhance.Brightness(image)
         # Enhance contrast for sharper image
-        converter_con = ImageEnhance.Contrast(image_temp)
+        converter_con = ImageEnhance.Contrast(image)
         
-        image_temp = converter_color.enhance(enhancement_settings['saturation'])   # Increase saturation for vivid colors
-        image_temp = converter_bri.enhance(enhancement_settings['brightness'])    # Increase brightness for better visibility
-        image_temp = converter_con.enhance(enhancement_settings['contrast'])    # Increase contrast for sharper image
-
-        # Check rotation setting from file or use default (0)
-        rotation = self.get_rotation_setting()
-        print(f"Applying rotation: {rotation} degrees")
-        
-        if rotation != 0:
-            image = image.rotate(rotation, expand=True)
+        image = converter_color.enhance(enhancement_settings['saturation'])   # Increase saturation for vivid colors
+        image = converter_bri.enhance(enhancement_settings['brightness'])    # Increase brightness for better visibility
+        image = converter_con.enhance(enhancement_settings['contrast'])    # Increase contrast for sharper image
 
         image_temp = image
 
