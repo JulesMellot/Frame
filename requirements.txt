@@ -4,4 +4,5 @@ Pillow
 plexapi
 python-dotenv
 black
-# waveshare-epd is required only on devices with the e-Paper display
+spidev
+gpiozero

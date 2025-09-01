@@ -43,16 +43,6 @@ apt-get update
 apt-get install -y python3-pip python3-venv python3-pil python3-numpy python3-smbus
 apt-get install -y python3-spidev python3-rpi.gpio
 
-# Vérifier si la bibliothèque Waveshare est installée
-echo "Checking Waveshare e-Paper library..."
-if ! python3 -c "import waveshare_epd.epd7in3f" 2>/dev/null; then
-    echo "Installing Waveshare e-Paper library..."
-    # Utiliser pip au lieu de setup.py pour éviter les problèmes de dépendances
-    pip3 install git+https://github.com/waveshare/e-Paper.git#subdirectory=RaspberryPi_JetsonNano/python
-else
-    echo "Waveshare e-Paper library already installed"
-fi
-
 # Activer l'interface SPI si nécessaire
 echo "Enabling SPI interface..."
 raspi-config nonint do_spi 0
@@ -61,6 +51,15 @@ raspi-config nonint do_spi 0
 echo "Updating dependencies..."
 source "$VENV_DIR/bin/activate"
 pip install --upgrade -r requirements.txt
+
+# Vérifier l'installation des dépendances critiques
+echo "Verifying critical dependencies..."
+if python -c "import spidev; import gpiozero; print('Critical dependencies installed successfully')"; then
+    echo "✅ Critical dependencies installed successfully"
+else
+    echo "❌ Failed to install critical dependencies"
+    exit 1
+fi
 
 # Redémarrer le service
 echo "Restarting service..."

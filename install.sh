@@ -42,30 +42,12 @@ pip install --upgrade pip
 echo "Installing Python dependencies..."
 pip install --no-cache-dir -r requirements.txt
 
-# Install Waveshare e-Paper library
-echo "Installing Waveshare e-Paper library..."
-# Méthode 1: Installation via pip (plus fiable)
-pip install waveshare-epd
-
-# Méthode 2: Si la méthode 1 échoue, installation depuis GitHub
-if ! python -c "import waveshare_epd" 2>/dev/null; then
-    echo "Installing Waveshare e-Paper library from GitHub..."
-    cd /tmp
-    if [ -d "e-Paper" ]; then
-        rm -rf e-Paper
-    fi
-    git clone https://github.com/waveshare/e-Paper.git
-    cd e-Paper/RaspberryPi_JetsonNano/python
-    pip install .
-    cd "$TARGET_DIR"
-fi
-
-# Vérifier l'installation
-echo "Verifying Waveshare installation..."
-if python -c "import waveshare_epd.epd7in3f; print('Waveshare EPD library installed successfully')"; then
-    echo "✅ Waveshare library installed successfully"
+# Vérifier l'installation des dépendances critiques
+echo "Verifying critical dependencies..."
+if python -c "import spidev; import gpiozero; print('Critical dependencies installed successfully')"; then
+    echo "✅ Critical dependencies installed successfully"
 else
-    echo "❌ Failed to install Waveshare library"
+    echo "❌ Failed to install critical dependencies"
     exit 1
 fi
 
