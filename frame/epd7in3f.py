@@ -199,6 +199,14 @@ class EPD:
 
     def getbuffer(self, image):
         # Create a pallette with the 7 colors supported by the panel
+        # Color mapping according to Waveshare documentation:
+        # Black: 0x000000 (0b0000)
+        # White: 0xffffff (0b0001) 
+        # Green: 0x00ff00 (0b0010)
+        # Blue: 0xff0000 (0b0011) - Note: BGR format in hardware
+        # Red: 0x0000ff (0b0100) - Note: BGR format in hardware
+        # Yellow: 0x00ffff (0b0101) - Note: BGR format in hardware
+        # Orange: 0x0080ff (0b0110) - Note: BGR format in hardware
         pal_image = Image.new("P", (1,1))
         pal_image.putpalette( (0,0,0,  255,255,255,  0,255,0,   0,0,255,  255,0,0,  255,255,0, 255,128,0) + (0,0,0)*249)
 
@@ -207,15 +215,22 @@ class EPD:
         if(imwidth == self.width and imheight == self.height):
             image_temp = image
         elif(imwidth == self.height and imheight == self.width):
-            image_temp = image.rotate(90, expand=True)
+            # Rotate 90 degrees clockwise
+            image_temp = image.rotate(-90, expand=True)
         else:
             # Redimensionner l'image pour qu'elle corresponde à la taille de l'écran
             print(f"Resizing image from {imwidth}x{imheight} to {self.width}x{self.height}")
-            image_temp = image.resize((self.width, self.height))
-            # Si les dimensions sont inversées, on peut aussi essayer de les pivoter
-            # image_temp = image.rotate(90, expand=True).resize((self.width, self.height))
+            image_temp = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
 
-        # Convert the soruce image to the 7 colors, dithering if needed
+        # Apply color enhancement before quantization
+        from PIL import ImageEnhance
+        # Increase saturation and brightness for better color display
+        converter_color = ImageEnhance.Color(image_temp)
+        converter_bri = ImageEnhance.Brightness(image_temp)
+        image_temp = converter_color.enhance(2.0)  # Increase saturation
+        image_temp = converter_bri.enhance(1.2)   # Increase brightness
+
+        # Convert the source image to the 7 colors, dithering if needed
         image_7color = image_temp.convert("RGB").quantize(palette=pal_image)
         buf_7color = bytearray(image_7color.tobytes('raw'))
 
