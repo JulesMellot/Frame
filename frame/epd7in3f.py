@@ -209,7 +209,11 @@ class EPD:
         elif(imwidth == self.height and imheight == self.width):
             image_temp = image.rotate(90, expand=True)
         else:
-            logger.warning("Invalid image dimensions: %d x %d, expected %d x %d" % (imwidth, imheight, self.width, self.height))
+            # Redimensionner l'image pour qu'elle corresponde à la taille de l'écran
+            print(f"Resizing image from {imwidth}x{imheight} to {self.width}x{self.height}")
+            image_temp = image.resize((self.width, self.height))
+            # Si les dimensions sont inversées, on peut aussi essayer de les pivoter
+            # image_temp = image.rotate(90, expand=True).resize((self.width, self.height))
 
         # Convert the soruce image to the 7 colors, dithering if needed
         image_7color = image_temp.convert("RGB").quantize(palette=pal_image)
