@@ -635,7 +635,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
             e.preventDefault();
             
             if (!appState.apiToken) {
-                showMessage('upload-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                showMessage('upload-status', 'Veuillez d\'abord configurer votre token API.', 'error');
                 return;
             }
             
@@ -677,7 +677,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
             e.preventDefault();
             
             if (!appState.apiToken) {
-                showMessage('function-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                showMessage('function-status', 'Veuillez d\'abord configurer votre token API.', 'error');
                 return;
             }
             
@@ -699,7 +699,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
                 if (response.ok && data.success) {
                     showMessage('function-status', 'Fonction enregistrée avec succès.', 'success');
                 } else {
-                    showMessage('function-status', data.error || 'Erreur lors de l'enregistrement.', 'error');
+                    showMessage('function-status', data.error || 'Erreur lors de l\'enregistrement.', 'error');
                 }
             } catch (error) {
                 showMessage('function-status', `Erreur réseau: ${error.message}`, 'error');
@@ -709,7 +709,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
         // Gérer la mise à jour du cadre
         async function handleUpdateFrame() {
             if (!appState.apiToken) {
-                showMessage('action-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                showMessage('action-status', 'Veuillez d\'abord configurer votre token API.', 'error');
                 return;
             }
             
@@ -736,7 +736,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
         // Gérer la calibration de l'écran (bouton rapide)
         async function handleCalibrateScreen() {
             if (!appState.apiToken) {
-                showMessage('action-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                showMessage('action-status', 'Veuillez d\'abord configurer votre token API.', 'error');
                 return;
             }
             
@@ -767,7 +767,7 @@ image_temp = image.rotate(180, expand=True)   // 180°</pre>
         // Gérer le démarrage de la calibration
         async function handleStartCalibration() {
             if (!appState.apiToken) {
-                showMessage('calibration-status', 'Veuillez d'abord configurer votre token API.', 'error');
+                showMessage('calibration-status', 'Veuillez d\'abord configurer votre token API.', 'error');
                 return;
             }
             
