@@ -54,7 +54,7 @@ pip install --upgrade -r requirements.txt
 
 # Vérifier l'installation des dépendances critiques
 echo "Verifying critical dependencies..."
-if python -c "import spidev; import gpiozero; print('Critical dependencies installed successfully')"; then
+if python -c "import spidev; import gpiozero; import RPi.GPIO; print('Critical dependencies installed successfully')"; then
     echo "✅ Critical dependencies installed successfully"
 else
     echo "❌ Failed to install critical dependencies"
