@@ -7,3 +7,5 @@ black
 spidev
 gpiozero
 RPi.GPIO
+lgpio
+pigpio
