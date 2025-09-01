@@ -221,16 +221,22 @@ class EPD:
             image = image.resize((self.width, self.height), Image.Resampling.LANCZOS)
             imwidth, imheight = self.width, self.height
 
-        # Apply color enhancement before quantization
+        # Apply color enhancement for better display on e-Paper
         from PIL import ImageEnhance
-        # Increase saturation and brightness for better color display
-        converter_color = ImageEnhance.Color(image)
-        converter_bri = ImageEnhance.Brightness(image)
-        converter_con = ImageEnhance.Contrast(image)
+        # Get enhancement settings from configuration file or use defaults
+        enhancement_settings = self.get_enhancement_settings()
+        print(f"Applying enhancement settings: {enhancement_settings}")
         
-        image = converter_color.enhance(2.1)   # Increase saturation for vivid colors
-        image = converter_bri.enhance(1.3)    # Increase brightness for better visibility
-        image = converter_con.enhance(1.2)    # Increase contrast for sharper image
+        # Enhance saturation to make colors more vivid on e-Paper display
+        converter_color = ImageEnhance.Color(image_temp)
+        # Enhance brightness for better visibility
+        converter_bri = ImageEnhance.Brightness(image_temp)
+        # Enhance contrast for sharper image
+        converter_con = ImageEnhance.Contrast(image_temp)
+        
+        image_temp = converter_color.enhance(enhancement_settings['saturation'])   # Increase saturation for vivid colors
+        image_temp = converter_bri.enhance(enhancement_settings['brightness'])    # Increase brightness for better visibility
+        image_temp = converter_con.enhance(enhancement_settings['contrast'])    # Increase contrast for sharper image
 
         # Check rotation setting from file or use default (0)
         rotation = self.get_rotation_setting()
@@ -299,6 +305,38 @@ class EPD:
         except Exception as e:
             print(f"Error reading rotation setting: {e}")
             return 0
+            
+    def get_enhancement_settings(self):
+        """Get image enhancement settings from configuration file or return defaults"""
+        import os
+        import json
+        
+        config_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'OnWeb', 'enhancement.json')
+        try:
+            if os.path.exists(config_file):
+                with open(config_file, 'r') as f:
+                    config = json.load(f)
+                    # Validate and return settings with defaults for missing values
+                    return {
+                        'saturation': float(config.get('saturation', 2.1)),
+                        'brightness': float(config.get('brightness', 1.3)),
+                        'contrast': float(config.get('contrast', 1.2))
+                    }
+            else:
+                # Return default settings
+                return {
+                    'saturation': 2.1,
+                    'brightness': 1.3,
+                    'contrast': 1.2
+                }
+        except Exception as e:
+            print(f"Error reading enhancement settings: {e}")
+            # Return default settings in case of error
+            return {
+                'saturation': 2.1,
+                'brightness': 1.3,
+                'contrast': 1.2
+            }
             
 ### END OF FILE ###
 

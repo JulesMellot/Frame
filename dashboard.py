@@ -152,6 +152,69 @@ def set_rotation():
     except Exception as e:
         return jsonify(success=False, error=str(e)), 500
 
+@app.route('/api/enhancement', methods=['GET'])
+@require_auth
+def get_image_enhancement():
+    """Retourne les paramètres d'amélioration d'image actuels"""
+    import os
+    import json
+    
+    enhancement_file = os.path.join(WEB_DIR, 'enhancement.json')
+    try:
+        if os.path.exists(enhancement_file):
+            with open(enhancement_file, 'r') as f:
+                config = json.load(f)
+        else:
+            # Paramètres par défaut
+            config = {
+                'saturation': 2.1,
+                'brightness': 1.3,
+                'contrast': 1.2
+            }
+            
+        return jsonify(success=True, enhancement=config)
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
+
+@app.route('/api/enhancement', methods=['POST'])
+@require_auth
+def set_image_enhancement():
+    """Définit les paramètres d'amélioration d'image"""
+    import os
+    import json
+    
+    data = request.get_json()
+    if data is None:
+        return jsonify(success=False, error="Invalid data"), 400
+        
+    try:
+        # Valider les paramètres
+        enhancement = {}
+        if 'saturation' in data:
+            enhancement['saturation'] = float(data['saturation'])
+        if 'brightness' in data:
+            enhancement['brightness'] = float(data['brightness'])
+        if 'contrast' in data:
+            enhancement['contrast'] = float(data['contrast'])
+            
+        # Vérifier que les valeurs sont dans des plages raisonnables
+        for key, value in enhancement.items():
+            if key == 'saturation' and not (0.0 <= value <= 5.0):
+                return jsonify(success=False, error="Saturation must be between 0.0 and 5.0"), 400
+            if key == 'brightness' and not (0.0 <= value <= 3.0):
+                return jsonify(success=False, error="Brightness must be between 0.0 and 3.0"), 400
+            if key == 'contrast' and not (0.0 <= value <= 3.0):
+                return jsonify(success=False, error="Contrast must be between 0.0 and 3.0"), 400
+        
+        enhancement_file = os.path.join(WEB_DIR, 'enhancement.json')
+        
+        with open(enhancement_file, 'w') as f:
+            json.dump(enhancement, f)
+            
+        return jsonify(success=True, enhancement=enhancement)
+    except Exception as e:
+        return jsonify(success=False, error=str(e)), 500
+
 @app.route('/api/tags', methods=['POST'])
 @require_auth
 def update_tags():
