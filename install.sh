@@ -28,6 +28,11 @@ apt-get install -y python3-spidev python3-rpi.gpio git
 echo "Enabling SPI interface..."
 raspi-config nonint do_spi 0
 
+# Add pi user to required groups
+echo "Adding pi user to gpio and spi groups..."
+usermod -a -G gpio pi
+usermod -a -G spi pi
+
 # Create a virtual environment
 echo "Creating virtual environment..."
 python3 -m venv "$VENV_DIR"
@@ -52,8 +57,9 @@ else
 fi
 
 echo "Installing systemd service..."
-# Update the service file to use the virtual environment
-sed -i "s|ExecStart=.*|ExecStart=$VENV_DIR/bin/python dashboard.py|" frame/frame.service
+# Update the service file to use the pi user
+sed -i "s|User=.*|User=pi|" frame/frame.service
+sed -i "s|Group=.*|Group=pi|" frame/frame.service
 cp frame/frame.service /etc/systemd/system/frame.service
 
 # Copy the update script to a convenient location
@@ -63,7 +69,8 @@ chmod +x /usr/local/bin/frame-update
 
 systemctl daemon-reload
 systemctl enable frame.service
-systemctl start frame.service
 
 echo "Installation complete!"
-echo "You can update the Frame software at any time by running: sudo frame-update"
+echo "The system needs to be rebooted for GPIO permissions to take effect."
+echo "Please run: sudo reboot"
+echo "After reboot, start the service with: sudo systemctl start frame.service"

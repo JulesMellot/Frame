@@ -47,6 +47,11 @@ apt-get install -y python3-spidev python3-rpi.gpio
 echo "Enabling SPI interface..."
 raspi-config nonint do_spi 0
 
+# Add pi user to required groups (if not already done)
+echo "Adding pi user to gpio and spi groups..."
+usermod -a -G gpio pi
+usermod -a -G spi pi
+
 # Mettre à jour les dépendances dans l'environnement virtuel
 echo "Updating dependencies..."
 source "$VENV_DIR/bin/activate"
@@ -62,7 +67,6 @@ else
 fi
 
 # Redémarrer le service
-echo "Restarting service..."
-systemctl restart frame.service
-
 echo "Update complete!"
+echo "Please restart the service with: sudo systemctl restart frame.service"
+echo "Or reboot the system for GPIO permission changes to take full effect: sudo reboot"
