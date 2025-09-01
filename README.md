@@ -3,7 +3,6 @@
 A pluggable image frame built on Flask and a Waveshare e‑Ink display. The dashboard lets you upload pictures, fetch them from external services, and trigger refreshes either manually or on a schedule.
 
 ## Features
-
 - Web dashboard for uploading images and managing configuration
 - Pluggable image sources (DeviantArt, Plex, fixed images, or custom plugins)
 - Optional scheduler for periodic refreshes
@@ -13,9 +12,9 @@ A pluggable image frame built on Flask and a Waveshare e‑Ink display. The dash
 - Support for multiple environment files
 - Automatic API token generation
 - Easy update system
+- Configurable image rotation (0°, 90°, 180°, 270°, -90°)
 
 ## Architecture
-
 ```mermaid
 graph TD
     A[Browser] -->|HTTP| B[Flask dashboard]
@@ -26,34 +25,28 @@ graph TD
 ```
 
 ## Quickstart
-
 1. **Clone and enter the repository**
    ```bash
    git clone https://github.com/your-user/Frame.git
    cd Frame
    ```
-
 2. **(Optional) Create a virtual environment**
    ```bash
    python -m venv .venv
    source .venv/bin/activate
    ```
-
 3. **Install dependencies**
    ```bash
    pip install -r requirements.txt
    ```
-
 4. **Run the dashboard**
    ```bash
    python dashboard.py
    ```
-
 5. **Configure via web interface**
    Visit http://localhost:5000 to access the initial setup wizard.
 
 ## Configuration
-
 Environment variables control behaviour. On first access, you'll be guided through a web-based setup process to configure these variables.
 
 Alternatively, you can manually create a `.env` file:
@@ -67,10 +60,9 @@ cp .env.example .env
 | `API_TOKEN` | Bearer token required for API requests |
 | `DEVIANTART_CLIENT_ID`, `DEVIANTART_CLIENT_SECRET` | DeviantArt credentials |
 | `PLEX_URL`, `PLEX_TOKEN`, `PLEX_LIBRARY` | Plex server info |
-| `UPDATE_INTERVAL` | Seconds between automatic refreshes (0 disables scheduler) |
+| `UPDATE_INTERVAL` | Seconds between automatic refreshes (0 disables scheduler)
 
 ### Multiple Environment Files
-
 You can use different environment files by setting the `ENV_FILE` environment variable:
 ```bash
 ENV_FILE=.env.production python dashboard.py
@@ -102,10 +94,10 @@ Authorization: Bearer YOUR_API_TOKEN
 You can upload an image to the frame by providing a URL to the image:
 
 ```bash
-curl -X POST \\
-  http://your-frame-ip:5000/api/upload_url \\
-  -H 'Authorization: Bearer YOUR_API_TOKEN' \\
-  -H 'Content-Type: application/json' \\
+curl -X POST \
+  http://your-frame-ip:5000/api/upload_url \
+  -H 'Authorization: Bearer YOUR_API_TOKEN' \
+  -H 'Content-Type: application/json' \
   -d '{"url": "https://example.com/image.jpg"}'
 ```
 
@@ -114,9 +106,9 @@ curl -X POST \\
 You can also upload an image file directly:
 
 ```bash
-curl -X POST \\
-  http://your-frame-ip:5000/api/upload \\
-  -H 'Authorization: Bearer YOUR_API_TOKEN' \\
+curl -X POST \
+  http://your-frame-ip:5000/api/upload \
+  -H 'Authorization: Bearer YOUR_API_TOKEN' \
   -F 'image=@/path/to/your/image.jpg'
 ```
 
@@ -125,9 +117,10 @@ curl -X POST \\
 To trigger an immediate update of the frame display:
 
 ```bash
-curl -X POST \\
-  http://your-frame-ip:5000/api/new \\
-  -H 'Authorization: Bearer YOUR_API_TOKEN'
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_API_TOKEN" \
+  http://your-frame-ip:5000/api/new
 ```
 
 ### Set Image Source
@@ -135,14 +128,28 @@ curl -X POST \\
 You can configure which image source the frame should use (DeviantArt, Plex, or fixed):
 
 ```bash
-curl -X POST \\
-  http://your-frame-ip:5000/api/function \\
-  -H 'Authorization: Bearer YOUR_API_TOKEN' \\
-  -H 'Content-Type: application/json' \\
+curl -X POST \
+  http://your-frame-ip:5000/api/function \
+  -H 'Authorization: Bearer YOUR_API_TOKEN' \
+  -H 'Content-Type: application/json' \
   -d '{"function": "DeviantArt"}'
 ```
 
 Replace `"DeviantArt"` with `"plex"` or `"fixed"` as needed.
+
+### Set Image Rotation
+
+You can configure the image rotation angle:
+
+```bash
+curl -X POST \
+  http://your-frame-ip:5000/api/rotation \
+  -H 'Authorization: Bearer YOUR_API_TOKEN' \
+  -H 'Content-Type: application/json' \
+  -d '{"rotation": 180}'
+```
+
+Valid rotation values: 0, 90, 180, 270, -90
 
 ## Development
 
@@ -230,6 +237,7 @@ After installation, configuration files are located at:
 - Allowed tags: `/home/pi/Frame/OnWeb/tags.json`
 - Forbidden tags: `/home/pi/Frame/OnWeb/bantag.json`
 - Current image: `/home/pi/Frame/OnWeb/img.png`
+- Rotation settings: `/home/pi/Frame/OnWeb/rotation.json`
 
 ### Service Management
 
@@ -262,7 +270,6 @@ docker run --env-file .env -p 5000:5000 frame
 ```
 
 ## Extending
-
 Create a module that downloads an image and register it:
 
 ```python
@@ -275,7 +282,6 @@ register_plugin("my_source", my_source)
 ```
 
 ## License
-
 [MIT](LICENSE)
 
 Merci et bonne journée !
